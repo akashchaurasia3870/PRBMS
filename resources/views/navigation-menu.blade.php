@@ -2,9 +2,9 @@
     <!-- Primary Navigation Menu -->
     <div class="mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
-            <div class="flex">
+            <div class="flex items-center gap-2">
                 <!-- Logo -->
-                <div class="shrink-0 flex items-center">
+                <div class="shrink-0 flex items-center mr-2">
                     <a href="{{ route('dashboard') }}" class='h-12 w-12'>
                         <x-application-logo class="block h-9 w-auto" />
                         {{-- <img src="{{ asset('images/logo.png') }}" alt="Platform Logo" class="block h-10 w-auto " > --}}
@@ -17,6 +17,9 @@
                     <x-nav-link href="{{ route('dashboard') }}" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
+                </div>
+                <div id="menuToggle" class="p-1 m-1 h-8 bg-blue-300 text-dark rounded text-xl cursor-pointer">
+                    <span>🏠</span>
                 </div>
             </div>
 

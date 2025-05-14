@@ -4,7 +4,6 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
-
         <title>{{ config('app.name', 'PRBMS') }}</title>
 
         <!-- Fonts -->
@@ -15,39 +14,54 @@
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
-
         <!-- Styles -->
         @livewireStyles
     </head>
     <body class="font-sans antialiased">
         <x-banner />
-        <div class="min-h-screen flex flex-col bg-gray-100">
-
-            {{-- Navigation Header --}}
-            @livewire('navigation-menu')
-        
-            {{-- Main Layout --}}
-            <div class="flex flex-1">
-        
-                {{-- Sidebar --}}
-                <section class="">
-                </section>
-                <x-sidebar class="w-1/5" />
-        
-                {{-- Page Content --}}
-                <main class="flex-1 p-4 h-screen overflow-y-scroll bg-white-100">
-                    {{ $slot }}
-                </main>
-        
-            </div>
-        
+        {{-- Sidebar --}}
+        <div class="flex flex-row h-[100vh] w-[100vw] bg-gray-700 overflow-hidden">
+            <x-sidebar/>
+            <div class="flex flex-col bg-gray-100 w-[100%] h-[100%]">
+    
+                {{-- Navigation Header --}}
+                @livewire('navigation-menu')
+                {{-- Main Layout --}}
+                <div class="flex flex-1">
+                    {{-- Page Content --}}
+                    <main class="flex-1 pt-2 pb-4 px-2 bg-white-100 h-[92vh]">
+                        {{ $slot }}
+                    </main>
+            
+                </div>
+            
+            </div>    
         </div>
         
-
         @stack('modals')
 
         @livewireScripts
     </body>
 
+    <script>
+        const sidebar = document.getElementById('sidebar');
+        const menuToggle = document.getElementById('menuToggle');
+    
+        let isOpen = sessionStorage.getItem('sidebarState') === 'true';
+
+        if (!isOpen) {
+            sidebar.style.display = 'none';
+        }
+
+        menuToggle.addEventListener('click', () => {
+            if (isOpen) {
+            sidebar.style.display = 'none';
+            } else {
+            sidebar.style.display = 'flex';
+            }
+            isOpen = !isOpen;
+            sessionStorage.setItem('sidebarState', isOpen);
+        });
+    </script>
 
 </html>
