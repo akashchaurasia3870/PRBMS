@@ -11,16 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('user_roles',function(Blueprint $table){
+        Schema::create('users_leave',function(Blueprint $table){
             $table->id();
-            $table->integer('user_id');
-            $table->integer('role_id');
-            $table->integer('role_lvl');
+            $table->unsignedBigInteger('user_id');
+            $table->enum('leave_type',['sick','casual','earned','unpaid']);
+            $table->enum('status',['pending','approved','rejected'])->default('pending');
+            $table->string('reason',100);
+            $table->string('description',255);
+            $table->timestamp('start_date')->nullable();
+            $table->timestamp('end_date')->nullable();
             $table->boolean('deleted')->default(false);
             $table->unsignedBigInteger('deleted_by')->nullable();
             $table->timestamp('deleted_at')->nullable();
             $table->timestamps();
-
         });
     }
 
@@ -29,6 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('user_roles');
+        Schema::dropIfExists('users_leave');
     }
 };

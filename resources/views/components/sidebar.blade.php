@@ -59,6 +59,42 @@
             </ul>
         </li>
 
+        <li class="bg-gray-50 border border-gray-200 rounded-xl overflow-hidden">
+            <span class="block text-lg font-semibold text-gray-800 px-4 py-3 border-b border-gray-200">Attendence</span>
+            <ul class="pl-4 py-2 space-y-1">
+                <li>
+                    <a href="{{ route('dashboard_mark.mark_attendence') }}"
+                       class="block rounded-lg text-gray-600 hover:bg-blue-50 hover:text-blue-600 px-3 py-2 transition">
+                        ➕ Mark Attendence
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('dashboard_list.user_attendence') }}"
+                       class="block rounded-lg text-gray-600 hover:bg-blue-50 hover:text-blue-600 px-3 py-2 transition">
+                        📃 List Users Attendence
+                    </a>
+                </li>
+            </ul>
+        </li>
+
+        <li class="bg-gray-50 border border-gray-200 rounded-xl overflow-hidden">
+            <span class="block text-lg font-semibold text-gray-800 px-4 py-3 border-b border-gray-200">Leave</span>
+            <ul class="pl-4 py-2 space-y-1">
+                <li>
+                    <a href="{{ route('dashboard_leave.leave_request_view') }}"
+                       class="block rounded-lg text-gray-600 hover:bg-blue-50 hover:text-blue-600 px-3 py-2 transition">
+                        ➕ Apply Leave
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('dashboard_leave.leave_request') }}"
+                       class="block rounded-lg text-gray-600 hover:bg-blue-50 hover:text-blue-600 px-3 py-2 transition">
+                        📃 Leave Requests
+                    </a>
+                </li>
+            </ul>
+        </li>
+
         <li class="bg-gray-50 border border-gray-200 rounded-xl">
             <a href="{{ route('profile.show') }}"
                class="block text-gray-600 hover:bg-blue-50 hover:text-blue-600 rounded-lg px-4 py-3 transition font-medium">

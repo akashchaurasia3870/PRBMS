@@ -57,9 +57,8 @@ class UserController extends Controller
 
     public function update_documents(Request $request)
     {
-        // Retrieve files from the request
-        $files = $request->files; // 'files' should match the input name in your form
-        $data = $this->userInfoService->updateDocuments($request, $files);
+
+        $data = $this->userInfoService->updateDocuments($request);
 
         if (!$data) {
             return response()->json(['error' => 'User not found'], 404);

@@ -101,7 +101,7 @@ class RoleController extends Controller
         $data = DB::table('users')
             ->leftJoin('user_roles', 'users.id', '=', 'user_roles.user_id')
             ->select('users.name','users.id','users.email','users.created_at', 'user_roles.role_id','user_roles.role_lvl','user_roles.id as r_id')
-            ->where('user_roles.deleted', '!=', 1)
+            // ->where('user_roles.deleted', '!=', 1)
             // ->where('users.deleted','!=',1)
             ->paginate(10);
         // dd($data);

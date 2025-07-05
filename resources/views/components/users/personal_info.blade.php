@@ -1,10 +1,11 @@
 <div class="mx-auto p-6 bg-white rounded-xl shadow-md mt-8">
     <h2 class="text-2xl font-bold mb-4 text-gray-800">Personal Information</h2>
     @php
+        // dd($data)
         // Get the last segment of the URL as user_id
         $user_id = request()->segment(count(request()->segments()));
     @endphp
-    @if(!isset($data) || empty($data) || (is_countable($data) && count($data) === 0 || count($data->documents ?? []) === 0))
+    @if(!isset($data) || empty($data) || (is_countable($data) && count($data) === 0))
         <div class="text-center text-gray-400 py-8">No Data Available</div>
         <div class="text-center">
             <button id="edit_button_doc"
@@ -15,12 +16,12 @@
     @else
         <!-- Display Mode -->
         <div id="personalInfoDisplay" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <div>
-                <span class="block text-gray-500 text-sm">User ID</span>
-                <span class="font-medium text-gray-900">{{ $data->user_id ?? 'N/A' }}</span>
-            </div>
+            @php
+                // $data can be a single Document model or a collection/array of documents
+                $documents = is_iterable($data) && !is_string($data) ? $data : [$data];
+            @endphp
 
-            @forelse($data->documents as $doc)
+            @forelse($documents as $doc)
                 <div class="col-span-1 md:col-span-2 lg:col-span-3 border-t pt-4 mt-2">
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         <div>
@@ -48,7 +49,7 @@
                     </div>
                 </div>
             @empty
-                <div class="text-gray-500 col-span-1 md:col-span-2 lg:col-span-3">No Documents Available</div>
+                <div class="col-span-1 md:col-span-2 lg:col-span-3 text-gray-500 mt-4">N/A</div>
             @endforelse
         </div>
 
@@ -107,7 +108,7 @@
             <label class="block text-gray-500 text-sm">Upload Document</label>
             <input 
                 type="file" 
-                name="doc_url" 
+                name="file" 
                 accept=".jpg,.jpeg,.png,.gif,.webp,.pdf"
                 class="mt-1 w-full border border-gray-300 rounded px-3 py-2"
                 required

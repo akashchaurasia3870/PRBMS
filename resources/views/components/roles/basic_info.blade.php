@@ -9,6 +9,7 @@
                 <thead class="bg-gray-50">
                     <tr>
                         <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Role Name</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Role Desc</th>
                         <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Role Level</th>
                         <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Created At</th>
                         <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Action</th>
@@ -18,15 +19,16 @@
                     @forelse($data as $role)
                         <tr>
                             <td class="px-4 py-3 text-gray-700">{{ $role->role_name ?? 'N/A' }}</td>
+                            <td class="px-4 py-3 text-gray-700">{{ $role->role_desc ?? 'N/A' }}</td>
                             <td class="px-4 py-3 text-gray-700">{{ $role->role_lvl ?? 'N/A' }}</td>
                             <td class="px-4 py-3 text-gray-500">
-                                {{ $role->created_at ? $role->created_at->format('Y-m-d') : 'N/A' }}
+                                {{ (is_object($role) && isset($role->created_at) && $role->created_at) ? $role->created_at->format('Y-m-d') : 'N/A' }}
                             </td>
                             <td class="px-4 py-3">
                                 <form action="{{ route('dashboard_remove_users_roles.roles', $role->id ?? 0) }}" method="POST" onsubmit="return confirm('Are you sure you want to remove this role?');">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="inline-flex items-center px-3 py-1.5 bg-red-500 text-white text-xs font-semibold rounded hover:bg-red-600 transition">
+                                    <button type="submit" class="inline-flex items-center px-3 py-1.5 text-white text-xs font-semibold rounded bg-red-600 hover:bg-red-700 transition">
                                         Remove
                                     </button>
                                 </form>

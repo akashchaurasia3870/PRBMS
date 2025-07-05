@@ -18,12 +18,29 @@ class UserInfoService
         $contacts = Contacts::where('user_id', $userId)
         ->where('deleted', 0)
         ->first();
-        $documents = Documents::where('user_id', $userId)
-        ->where('deleted', 0)
-        ->first();
-        $roles = UserRoles::where('user_id', $userId)
-        ->where('deleted', 0)
-        ->first();
+        $documentsQuery = Documents::where('user_id', $userId)
+            ->where('deleted', 0);
+
+        $documentsCount = $documentsQuery->count();
+
+        if ($documentsCount > 1) {
+            $documents = $documentsQuery->get();
+        } else {
+            $documents = $documentsQuery->first();
+        }
+
+        $rolesQuery = UserRoles::where('user_id', $userId)
+            ->where('user_roles.deleted', 0)
+            ->leftJoin('roles', 'user_roles.role_id', '=', 'roles.id')
+            ->select('user_roles.*', 'roles.role_name', 'roles.role_desc');
+
+        $rolesCount = $rolesQuery->count();
+
+        if ($rolesCount > 1) {
+            $roles = $rolesQuery->get();
+        } else {
+            $roles = $rolesQuery->first();
+        }
 
         return [
             'user_id'=>$userId,
@@ -81,39 +98,31 @@ class UserInfoService
 
         return $data;
     }
-    public function updateDocuments($request, $files)
+    public function updateDocuments($request)
     {
-        $userId = isset($request['user_id']) ? (int)$request['user_id'] : null;
-        if (!$userId) {
-            return false;
+        $doc_type = $request->input('doc_type');
+        $doc_desc = $request->input('doc_desc');
+        $file_path = $request->input('file_path');
+        $user_id = $request->input('user_id');
+
+        $document = Documents::where('user_id', $user_id)
+            ->where('doc_type', $doc_type)
+            ->where('deleted', 0)
+            ->first();
+
+        if ($document) {
+            $document->doc_desc = $doc_desc;
+            $document->doc_url = $file_path;
+            $document->save();
+        } else {
+            Documents::create([
+                'user_id' => $user_id,
+                'doc_type' => $doc_type,
+                'doc_desc' => $doc_desc,
+                'doc_url' => $file_path,
+            ]);
         }
 
-        foreach ($files as $docType => $file) {
-            if ($file instanceof \Illuminate\Http\UploadedFile) {
-            $path = $file->store('documents', 'public');
-            dd($path);
-            $docDesc = isset($request[$docType . '_desc']) ? $request[$docType . '_desc'] : null;
-
-            $document = Documents::where('user_id', $userId)
-                ->where('doc_type', $docType)
-                ->where('deleted', 0)
-                ->first();
-
-            if ($document) {
-                $document->doc_desc = $docDesc;
-                $document->doc_url = $path;
-                $document->save();
-            } else {
-                Documents::create([
-                'user_id' => $userId,
-                'doc_type' => $docType,
-                'doc_desc' => $docDesc,
-                'doc_url' => $path,
-                ]);
-            }
-            }
-        }
-
-        return $this->getUserDetails($userId);
+        return $this->getUserDetails($user_id);
     }
 }

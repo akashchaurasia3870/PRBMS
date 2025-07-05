@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\AttendenceController;
+use App\Http\Controllers\LeaveController;
 use App\Http\Controllers\RoleController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
@@ -40,7 +42,7 @@ Route::middleware([
 
                     Route::post('/update_contact','update_contact')->name('dashboard_contact_update.user');
 
-                    Route::post('/update_doucuments','update_documents')->name('dashboard_doc_update.user');
+                    Route::post('/update_doucuments','update_documents')->name('dashboard_doc_update.user')->middleware('file.upload');
 
 
                 });
@@ -70,23 +72,47 @@ Route::middleware([
 
                 });
             });
+            Route::prefix('attendence')->group(function(){
+                Route::controller(AttendenceController::class)->group(function(){
+                    Route::get('/', 'index')->name('dashboard_list.user_attendence');
+
+                    Route::get('/details/{id}','get_user_attendence_details')->name('dashboard_details.user_attendence');
+
+                    Route::get('/mark','get_user_list')->name('dashboard_mark.mark_attendence');
+
+                    Route::post('/create','mark_attendence')->name('dashboard_store.user_attendence');
+
+                    Route::get('/edit/{id}','user_attendence_details')->name('dashboard_edit.user_attendence');
+
+                    Route::put('/update','update_user_attendence_details')->name('dashboard_update.user_attendence');
+
+                    Route::post('/mark_all_attendence','mark_all_attendence')->name('dashboard_store.mark_all_attendence');
+
+                    // Route::delete('/destroy',  'destroy_attendence')->name('dashboard_destroy.user_attendence');
+
+                    // Route::post('/update_attendence','update_attendence')->name('dashboard_update.user_attendence');
+                });
+            });
+            Route::prefix('leave')->group(function(){
+                Route::controller(LeaveController::class)->group(function(){
+                    Route::get('/', 'index')->name('dashboard_leave.leave_request');
+
+                    Route::get('/apply','leave_request_view')->name('dashboard_leave.leave_request_view');
+                    
+                    Route::post('/apply','create_leave_request')->name('dashboard_leave.create_leave_request');
+
+                    Route::get('/details/{id}','get_leave_info')->name('dashboard_leave.get_leave_info');
+                    
+                    Route::post('/approve_leave_status/{id}','approve_leave_status')->name('dashboard_leave.approve_leave_status');
+                    
+                    Route::post('/reject_leave_status/{id}','reject_leave_status')->name('dashboard_leave.reject_leave_status');
+                    
+                    Route::put('/edit/{id}','edit_leave_info')->name('dashboard_leave.edit_leave_info');
+
+                    Route::delete('/delete/{id}','destroy_leave_info')->name('dashboard_leave.destroy_leave_info');
+                });
+            });
         });
-// });
-
-
-// Route::get('/users',[UserController::class, 'index'])->name('dashboard_list.user')->middleware('LogsMiddleware');
-
-// Route::get('/users/details/{id}',function(){ return view('modules.users.view-user-details');})->name('dashboard_details.user');
-
-// Route::get('/users/create',function(){ return view('modules.users.create-user');})->name('dashboard_create.user');
-
-// Route::post('/users/create', [UserController::class, 'create'])->name('dashboard_store.user');
-
-// Route::get('/users/edit/{id}',[UserController::class,'detail'])->name('dashboard_edit.user');
-
-// Route::put('/users/update', [UserController::class, 'update'])->name('dashboard_update.user');
-
-// Route::delete('/users/destroy', [UserController::class, 'destroy'])->name('dashboard_destroy.user');
 
 
 

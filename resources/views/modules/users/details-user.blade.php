@@ -1,6 +1,6 @@
 <x-app-layout>
     {{-- @php
-    dd($data['user_info'])
+    dd($data['roles_info'])
     @endphp --}}
     <div class="mx-auto bg-white rounded shadow-md p-5 h-[100%] overflow-y-scroll no-scrollbar">
         <x-users.basic_info :data="$data['user_info']" />
