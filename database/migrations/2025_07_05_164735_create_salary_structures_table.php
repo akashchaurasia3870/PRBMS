@@ -4,18 +4,17 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
+class CreateSalaryStructuresTable extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        Schema::create('roles', function (Blueprint $table) {
+        Schema::create('salary_structures', function (Blueprint $table) {
             $table->id();
-            $table->string('role_name',50);
-            $table->string('role_desc',255);
-            $table->enum('role_lvl', [0, 1, 2, 3]);
+            $table->string('user_id');
+            $table->decimal('basic_salary', 10, 2);
+            $table->decimal('hra', 10, 2)->default(0);
+            $table->decimal('da', 10, 2)->default(0);
+            $table->decimal('other_allowance', 10, 2)->default(0);
             $table->string('created_by', 50)->nullable();
             $table->string('update_by', 50)->nullable();
             $table->string('deleted_by', 50)->nullable();
@@ -25,11 +24,8 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::dropIfExists('roles');
+        Schema::dropIfExists('salary_structures');
     }
-};
+}

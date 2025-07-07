@@ -5,7 +5,7 @@ namespace Database\Factories;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use App\Models\User;
 
-class AttendenceFactory extends Factory
+class AttendanceFactory extends Factory
 {
     public function definition(): array
     {

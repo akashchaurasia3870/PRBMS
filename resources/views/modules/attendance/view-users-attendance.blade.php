@@ -7,7 +7,7 @@
             <h2 class="text-3xl font-extrabold text-gray-800 mb-0">🗓️ View Attendance</h2>
 
             {{-- Month, Year & Search Filter --}}
-            <form action="{{ route('dashboard_list.user_attendence') }}" method="GET" class="flex items-center mb-4 space-x-2" id="attendance-filter-form">
+            <form action="{{ route('dashboard_list.user_attendance') }}" method="GET" class="flex items-center mb-4 space-x-2" id="attendance-filter-form">
                 {{-- @csrf --}}
                 <label>
                     <select name="month" class="border rounded px-2 py-1" onchange="document.getElementById('attendance-filter-form').submit()">
@@ -67,7 +67,7 @@
                             <td class="px-5 py-4 text-gray-700">{{ $user->totalWorkingDays }}</td>
                             <td class="px-5 py-4">
                                 @if(!empty($user->id))
-                                    <a href="{{ route('dashboard_details.user_attendence', ['id' => $user->id]) }}" class="text-blue-500 hover:text-blue-700">View Details</a>
+                                    <a href="{{ route('dashboard_details.user_attendance', ['id' => $user->id]) }}" class="text-blue-500 hover:text-blue-700">View Details</a>
                                 @else
                                     <span class="text-gray-400 cursor-not-allowed">View Details</span>
                                 @endif

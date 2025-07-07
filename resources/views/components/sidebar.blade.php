@@ -1,4 +1,4 @@
-<div id="sidebar" class="h-[100%] bg-gray-50 border border-gray-300 shadow-md flex flex-col px-6 py-4 overflow-y-auto no-scrollbar" style="width: 20%">
+<div id="sidebar" class="h-[100%] bg-gray-50 border border-gray-300 shadow-md flex flex-col px-6 py-4 overflow-y-auto no-scrollbar" style="width: 25%">
 
 <div class="border-b border-gray-200 pb-4 mb-6">
     <a href="{{ route('dashboard') }}" class="flex items-center space-x-3 group">
@@ -60,18 +60,18 @@
         </li>
 
         <li class="bg-gray-50 border border-gray-200 rounded-xl overflow-hidden">
-            <span class="block text-lg font-semibold text-gray-800 px-4 py-3 border-b border-gray-200">Attendence</span>
+            <span class="block text-lg font-semibold text-gray-800 px-4 py-3 border-b border-gray-200">Attendance</span>
             <ul class="pl-4 py-2 space-y-1">
                 <li>
-                    <a href="{{ route('dashboard_mark.mark_attendence') }}"
+                    <a href="{{ route('dashboard_mark.mark_attendance') }}"
                        class="block rounded-lg text-gray-600 hover:bg-blue-50 hover:text-blue-600 px-3 py-2 transition">
-                        ➕ Mark Attendence
+                        ➕ Mark Attendance
                     </a>
                 </li>
                 <li>
-                    <a href="{{ route('dashboard_list.user_attendence') }}"
+                    <a href="{{ route('dashboard_list.user_attendance') }}"
                        class="block rounded-lg text-gray-600 hover:bg-blue-50 hover:text-blue-600 px-3 py-2 transition">
-                        📃 List Users Attendence
+                        📃 List Users Attendance
                     </a>
                 </li>
             </ul>
@@ -92,6 +92,43 @@
                         📃 Leave Requests
                     </a>
                 </li>
+            </ul>
+        </li>
+
+        <li class="bg-gray-50 border border-gray-200 rounded-xl overflow-hidden">
+            <span class="block text-lg font-semibold text-gray-800 px-4 py-3 border-b border-gray-200">Payroll</span>
+            <ul class="pl-4 py-2 space-y-1">
+                <li>
+                    <a href="{{ route('dashboard_salary.create') }}"
+                       class="block rounded-lg text-gray-600 hover:bg-blue-50 hover:text-blue-600 px-3 py-2 transition">
+                        ➕ Create Structure
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('dashboard_salary.index') }}"
+                       class="block rounded-lg text-gray-600 hover:bg-blue-50 hover:text-blue-600 px-3 py-2 transition">
+                        📃 View Structure
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('dashboard_payroll.index') }}"
+                       class="block rounded-lg text-gray-600 hover:bg-blue-50 hover:text-blue-600 px-3 py-2 transition">
+                        📃 View Payroll
+                    </a>
+                </li>
+                {{-- <li>
+                    <a href="{{ route('dashboard_payroll.edit') }}"
+                       class="block rounded-lg text-gray-600 hover:bg-blue-50 hover:text-blue-600 px-3 py-2 transition">
+                        📃 Edit Payroll
+                    </a>
+                </li> --}}
+                <li>
+                    <a href="{{ route('dashboard_payroll.generateForm') }}"
+                       class="block rounded-lg text-gray-600 hover:bg-blue-50 hover:text-blue-600 px-3 py-2 transition">
+                        📃 Generate Payroll
+                    </a>
+                </li>
+                
             </ul>
         </li>
 

@@ -12,7 +12,14 @@ class DocumentsFactory extends Factory
         $userId = User::inRandomOrder()->first()?->id ?? User::factory();
         return [
             'user_id' => $userId,
-            'doc_type' => $this->faker->randomElement(['Phote_Passport_Size','Aadhar_Card','Driver_licence','HighSchool','Intermediate','Pen_Card']),
+            'doc_type' => $this->faker->randomElement([
+                'Photo_Passport_Size',
+                'UID_Card',
+                'Driver_license',
+                'HighSchool',
+                'Intermediate',
+                'Pen_Card'
+            ]),
             'doc_desc' => $this->faker->sentence(),
             'doc_url' => $this->faker->url(),
             'deleted' => false,

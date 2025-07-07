@@ -4,14 +4,14 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use App\Models\User;
-use App\Models\Attendence;
+use App\Models\Attendance;
 use Carbon\Carbon;
 
-class AttendenceSeeder extends Seeder
+class AttendanceSeeder extends Seeder
 {
     public function run(): void
     {
-        $startDate = Carbon::create(2024, 1, 1);
+        $startDate = Carbon::create(2024, 6, 1);
         $endDate = Carbon::today();
 
         $users = User::all();
@@ -19,7 +19,7 @@ class AttendenceSeeder extends Seeder
         foreach ($users as $user) {
             $date = $startDate->copy();
             while ($date->lte($endDate)) {
-                Attendence::factory()->create([
+                Attendance::factory()->create([
                     'user_id' => $user->id,
                     'date' => $date->toDateString(),
                     'status' => fake()->randomElement(['present', 'absent']),
