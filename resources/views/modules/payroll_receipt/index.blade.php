@@ -50,7 +50,6 @@
         <table class="min-w-full text-sm border border-gray-200 rounded-xl overflow-hidden" id="payroll-table">
             <thead class="bg-gray-50">
                 <tr>
-                    <th class="px-5 py-3 text-left text-xs font-semibold text-gray-600 uppercase">#</th>
                     <th class="px-5 py-3 text-left text-xs font-semibold text-gray-600 uppercase">User</th>
                     <th class="px-5 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Month/Year</th>
                     <th class="px-5 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Working</th>
@@ -64,7 +63,6 @@
             <tbody>
                 @forelse ($receipts as $receipt)
                     <tr class="border-b border-gray-100 hover:bg-gray-50 transition">
-                        <td class="px-5 py-4 text-gray-800 font-medium">{{ $receipt->id }}</td>
                         <td class="px-5 py-4 text-gray-800">{{ $receipt->name }}</td>
                         <td class="px-5 py-4 text-gray-700">{{ $receipt->month }}/{{ $receipt->year }}</td>
                         <td class="px-5 py-4 text-gray-700">{{ $receipt->total_working_days }}</td>
@@ -72,31 +70,37 @@
                         <td class="px-5 py-4 text-gray-700">{{ $receipt->leave_days }}</td>
                         <td class="px-5 py-4 text-gray-700">₹ {{ number_format($receipt->net_salary, 2) }}</td>
                         <td class="px-5 py-4">
-                            <span class="px-2 py-1 rounded text-xs font-semibold text-white {{ $receipt->status == 'paid' ? 'bg-green-600' : 'bg-yellow-500' }}">
+                            <span class="px-2 py-1 rounded text-xs font-semibold text-white bg-yellow-500">
                                 {{ ucfirst($receipt->status) }}
                             </span>
                         </td>
                         <td class="px-5 py-4 flex space-x-2">
-                            {{-- View --}}
-                            <a href="{{ route('dashboard_payroll.show', $receipt->id) }}"
-                               class="text-blue-600 hover:underline">View</a>
-                            {{-- Edit --}}
-                            <a href="{{ route('dashboard_payroll.edit', $receipt->id) }}"
-                               class="text-indigo-600 hover:underline">Edit</a>
-                            {{-- Pay --}}
-                            @if ($receipt->status == 'generated')
+                            <span class="px-2 py-1 rounded text-xs font-semibold text-white bg-blue-600">
+                                <a href="{{ route('dashboard_payroll.show', $receipt->id) }}"
+                                    class="text-white hover:underline">View</a>
+                            </span>
+                            <span class="px-2 py-1 rounded text-xs font-semibold text-white bg-red-600">
+                                <a href="{{ route('dashboard_payroll.edit', $receipt->id) }}"
+                               class="text-white hover:underline">Edit</a>
+                            </span>
+                            {{-- <span class="px-2 py-1 rounded text-xs font-semibold text-white bg-blue-600">
                                 <form action="{{ route('dashboard_payroll.markAsPaid', $receipt->id) }}" method="POST">
                                     @csrf
-                                    <button type="submit" class="text-green-600 hover:underline">Pay</button>
+                                    <button type="submit" class="text-white hover:underline">Pay</button>
                                 </form>
-                            @endif
-                            {{-- Delete --}}
-                            <form action="{{ route('dashboard_payroll.destroy', $receipt->id) }}" method="POST"
-                                  onsubmit="return confirm('Are you sure you want to delete this payroll?')">
-                                @csrf
-                                @method('POST')
-                                <button type="submit" class="text-red-600 hover:underline">Delete</button>
-                            </form>
+                            </span> --}}
+                            <span class="px-2 py-1 rounded text-xs font-semibold text-white bg-blue-600">
+                                {{-- Delete --}}
+                                <form action="{{ route('dashboard_payroll.destroy', $receipt->id) }}" method="POST"
+                                    onsubmit="return confirm('Are you sure you want to delete this payroll?')">
+                                    @csrf
+                                    @method('POST')
+                                    <button type="submit" class="text-white hover:underline">Delete</button>
+                                </form>
+                            </span>
+
+                            
+                            
                         </td>
                     </tr>
                 @empty

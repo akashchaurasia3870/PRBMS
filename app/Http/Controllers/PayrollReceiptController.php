@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\PayrollReceipt;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -16,6 +17,10 @@ class PayrollReceiptController extends Controller
         $year   = $request->input('year');
         $status = $request->input('status');
         $userId = $request->input('user_id');
+        
+        // Fallback to current month and year if not provided
+        $month = !empty($month) ? $month : Carbon::now()->format('m');
+        $year  = !empty($year)  ? $year  : Carbon::now()->format('Y');
 
         $receipts = DB::table('payroll_receipts as pr')
             ->join('users as u', 'u.id', '=', 'pr.user_id')
@@ -52,24 +57,21 @@ class PayrollReceiptController extends Controller
         return view('modules.payroll_receipt.show', compact('receipt'));
     }
 
-    // Show form to generate payroll
-    public function generateForm()
-    {
-        $users = User::where('deleted', 0)->get();
-        return view('modules.payroll_receipt.generate',compact('users'));
-    }
-
     // Generate payroll for one or all users
     public function generatePayroll(Request $request)
     {
         $month = $request->month;
         $year  = $request->year;
-        $all_users = $request->all_users;
         $user_id = $request->user_id;
+
+        // Fallback to current month and year if not provided
+        $month = !empty($month) ? $month : Carbon::now()->format('m');
+        $year  = !empty($year)  ? $year  : Carbon::now()->format('Y');
+
 
         // Build user query
         $userQuery = User::where('deleted', 0);
-        if (!$all_users) {
+        if ($user_id!='0') {
             $userQuery->where('id', $user_id);
         }
         $users = $userQuery->pluck('id');
@@ -122,6 +124,92 @@ class PayrollReceiptController extends Controller
         }
 
         return redirect()->route('dashboard_payroll.index')->with('success', 'Payroll generated successfully.');
+    }
+
+    // Generate payroll for one or all users
+    // Show form to generate payroll
+    public function generateForm(Request $request)
+    {
+        $users = User::where('deleted', 0)->get();
+    
+        $month = $request->month;
+        $year  = $request->year;
+        $user_id = $request->user_id;
+
+        // Fallback to current month and year if not provided
+        $month = !empty($month) ? $month : Carbon::now()->format('m');
+        $year  = !empty($year)  ? $year  : Carbon::now()->format('Y');
+
+
+        // Build user query
+        $userQuery = User::where('deleted', 0);
+        if ($user_id!='0' && $user_id!=null) {
+            $userQuery->where('id', $user_id);
+        }
+        $users = $userQuery->pluck('id');
+
+        // Exclude users who already have payroll for this month/year
+        $existingPayroll = DB::table('payroll_receipts')
+            ->where('month', $month)
+            ->where('year', $year)
+            ->where('deleted', 0)
+            ->whereIn('user_id', $users)
+            ->pluck('user_id')
+            ->toArray();
+
+        $targetUsers = $users->diff($existingPayroll);
+
+
+        // Fetch attendance + salary structure for target users
+        // Fetch attendance + salary structure for target users
+        $records = DB::table('users as u')
+                    ->leftJoin('attendance_view as v', function ($join) use ($month, $year) {
+                        $join->on('u.id', '=', 'v.id')
+                            ->where('v.month', '=', $month)
+                            ->where('v.year', '=', $year);
+                    })
+                    ->leftJoin('salary_structures as s', function ($join) {
+                        $join->on('u.id', '=', 's.user_id')
+                            ->where('s.deleted', '=', 0);
+                    })
+                    ->whereIn('u.id', $targetUsers->toArray())
+                    ->where('u.deleted', '=', 0)
+                    ->when($request->filled('search'), function ($query) use ($request) {
+                        $query->where('u.name', 'like', '%' . $request->search . '%');
+                    })
+                   ->select(
+                        'u.id as user_id',
+                        'u.name',
+                        'v.total_days',
+                        'v.month',
+                        'v.year',
+                        'v.present_count as present_days',
+                        DB::raw('(v.total_days - v.present_count) as leave_days'),
+                        's.basic_salary',
+                        's.hra',
+                        's.da',
+                        's.other_allowance',
+                        DB::raw('(s.basic_salary + s.hra + s.da + s.other_allowance) as gross_salary'),
+                        DB::raw('
+                            CASE 
+                                WHEN v.total_days > 0 
+                                    THEN (s.basic_salary + s.hra + s.da + s.other_allowance) / v.total_days
+                                ELSE 0
+                            END as per_day_salary
+                        '),
+                        DB::raw('
+                            CASE 
+                                WHEN v.total_days > 0 
+                                    THEN ((s.basic_salary + s.hra + s.da + s.other_allowance) / v.total_days) * v.present_count
+                                ELSE 0
+                            END as net_salary
+                        ')
+                    )
+                    ->paginate(10)
+                    ->appends($request->except('page'));
+
+        return view('modules.payroll_receipt.generate',compact('users','records'));
+
     }
 
     // Mark as paid
