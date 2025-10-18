@@ -11,11 +11,25 @@ class LeaveController extends Controller
 
     public function index()
     {
-        $leaves = Leave::join('users', 'users_leave.user_id', '=', 'users.id')
+        $query = Leave::join('users', 'users_leave.user_id', '=', 'users.id')
             ->select('users_leave.*', 'users.name')
             ->where('users_leave.deleted', '=', '0')
-            ->where('users.deleted', '=', '0')
-            ->paginate(10);
+            ->where('users.deleted', '=', '0');
+
+        if ($user = request('user')) {
+            $query->where('users.name', 'like', "%$user%");
+        }
+        if ($status = request('status')) {
+            $query->where('users_leave.status', $status);
+        }
+        if ($from = request('from_date')) {
+            $query->whereDate('users_leave.start_date', '>=', $from);
+        }
+        if ($to = request('to_date')) {
+            $query->whereDate('users_leave.end_date', '<=', $to);
+        }
+
+        $leaves = $query->orderBy('users_leave.created_at', 'desc')->paginate(10)->appends(request()->except('page'));
         return view('modules.leave.leave-request',['leaves'=>$leaves]);
     }
 

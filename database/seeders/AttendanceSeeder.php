@@ -11,7 +11,7 @@ class AttendanceSeeder extends Seeder
 {
     public function run(): void
     {
-        $startDate = Carbon::create(2024, 6, 1);
+        $startDate = Carbon::create(2025, 6, 1);
         $endDate = Carbon::today();
 
         $users = User::all();

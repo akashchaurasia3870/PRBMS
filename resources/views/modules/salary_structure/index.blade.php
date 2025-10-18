@@ -23,11 +23,11 @@
                 <tbody id="salary-structures-tbody">
                     @forelse ($structures as $structure)
                         <tr class="border-b border-gray-100 hover:bg-gray-50 transition">
-                            <td class="px-5 py-4 text-gray-800 font-medium">{{ $structure->user->name }}</td>
-                            <td class="px-5 py-4 text-gray-700">{{ $structure->basic_salary }}</td>
-                            <td class="px-5 py-4 text-gray-700">{{ $structure->hra }}</td>
-                            <td class="px-5 py-4 text-gray-700">{{ $structure->da }}</td>
-                            <td class="px-5 py-4 text-gray-700">{{ $structure->other_allowance }}</td>
+                            <td class="px-5 py-4 text-gray-800 font-medium">{{ $structure->user && $structure->user->name ? $structure->user->name : 'N/A' }}</td>
+                            <td class="px-5 py-4 text-gray-700">{{ $structure->basic_salary ?? 'N/A' }}</td>
+                            <td class="px-5 py-4 text-gray-700">{{ $structure->hra ?? 'N/A' }}</td>
+                            <td class="px-5 py-4 text-gray-700">{{ $structure->da ?? 'N/A' }}</td>
+                            <td class="px-5 py-4 text-gray-700">{{ $structure->other_allowance ?? 'N/A' }}</td>
                             <td class="px-5 py-4 flex space-x-2">
                                 <a href="{{ route('dashboard_salary.edit', $structure->id) }}"
                                    class="flex items-center space-x-1 text-blue-600 hover:bg-blue-50 border border-blue-100 rounded-lg px-3 py-1 transition">

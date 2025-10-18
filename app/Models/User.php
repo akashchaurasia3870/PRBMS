@@ -64,4 +64,11 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+
+    public function auditLogs()
+    {
+        return $this->morphMany(\App\Models\AuditLog::class, 'auditable');
+    }
+
 }

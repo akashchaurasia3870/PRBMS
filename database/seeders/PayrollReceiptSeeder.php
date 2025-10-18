@@ -10,6 +10,6 @@ class PayrollReceiptSeeder extends Seeder
     public function run(): void
     {
         // Seed 50 sample payroll receipts
-        PayrollReceipt::factory()->count(50)->create();
+        PayrollReceipt::factory()->count(15)->create();
     }
 }

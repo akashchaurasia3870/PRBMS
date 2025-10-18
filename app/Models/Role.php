@@ -13,4 +13,9 @@ class Role extends Model
         'role_desc',
         'role_lvl',
     ];
+
+    public function auditLogs()
+    {
+        return $this->morphMany(\App\Models\AuditLog::class, 'auditable');
+    }
 }

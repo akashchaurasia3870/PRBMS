@@ -131,6 +131,75 @@
                 
             </ul>
         </li>
+        <li class="bg-gray-50 border border-gray-200 rounded-xl overflow-hidden">
+            <span class="block text-lg font-semibold text-gray-800 px-4 py-3 border-b border-gray-200">Inventory</span>
+            <ul class="pl-4 py-2 space-y-1">
+                <li>
+                    <a href="{{ route('category.create') }}"
+                       class="block rounded-lg text-gray-600 hover:bg-blue-50 hover:text-blue-600 px-3 py-2 transition">
+                        ➕ Create Categories
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('category.index') }}"
+                       class="block rounded-lg text-gray-600 hover:bg-blue-50 hover:text-blue-600 px-3 py-2 transition">
+                        📃 View Categories
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('inventory.create') }}"
+                       class="block rounded-lg text-gray-600 hover:bg-blue-50 hover:text-blue-600 px-3 py-2 transition">
+                        ➕ Create Inventory
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('inventory.index') }}"
+                       class="block rounded-lg text-gray-600 hover:bg-blue-50 hover:text-blue-600 px-3 py-2 transition">
+                        📃 View Inventory
+                    </a>
+                </li>
+                
+            </ul>
+        </li>
+
+        <li class="bg-gray-50 border border-gray-200 rounded-xl overflow-hidden">
+            <span class="block text-lg font-semibold text-gray-800 px-4 py-3 border-b border-gray-200">Expense Tracker</span>
+            <ul class="pl-4 py-2 space-y-1">
+                <li>
+                    <a href="{{ route('expense_type.v1.new') }}"
+                       class="block rounded-lg text-gray-600 hover:bg-blue-50 hover:text-blue-600 px-3 py-2 transition">
+                        ➕ Add Expense Type
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('expense_type.v1.index') }}"
+                       class="block rounded-lg text-gray-600 hover:bg-blue-50 hover:text-blue-600 px-3 py-2 transition">
+                        📃 View Expense Types
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('expense.v1.new') }}"
+                       class="block rounded-lg text-gray-600 hover:bg-blue-50 hover:text-blue-600 px-3 py-2 transition">
+                        ➕ Add Expense Record
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('expense.v1.index') }}"
+                       class="block rounded-lg text-gray-600 hover:bg-blue-50 hover:text-blue-600 px-3 py-2 transition">
+                        📃 View Expense Records
+                    </a>
+                </li>
+                
+            </ul>
+        </li>
+
+        <li class="bg-gray-50 border border-gray-200 rounded-xl">
+            <a href="{{ route('logs') }}"
+               class="block text-gray-600 hover:bg-blue-50 hover:text-blue-600 rounded-lg px-4 py-3 transition font-medium">
+               🪵 View Logs
+            </a>
+        </li>
+
 
         <li class="bg-gray-50 border border-gray-200 rounded-xl">
             <a href="{{ route('profile.show') }}"

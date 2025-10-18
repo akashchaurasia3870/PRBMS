@@ -9,6 +9,6 @@ class LeaveSeeder extends Seeder
 {
     public function run(): void
     {
-        Leave::factory()->count(25)->create();
+        Leave::factory()->count(15)->create();
     }
 }

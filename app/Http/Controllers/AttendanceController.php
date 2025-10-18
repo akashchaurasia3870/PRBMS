@@ -11,6 +11,7 @@ class AttendanceController extends Controller
 {
     public function index(Request $request)
     {
+        // index
         $month = $request->month ?? date('m');
         $year = $request->year ?? date('Y');
         $search = $request->search;
@@ -44,6 +45,7 @@ class AttendanceController extends Controller
 
     public function get_user_attendance_details(Request $request)
     {
+        // show 
         $id = $request->id;
         $search = $request->search;
         if (empty($search)) {

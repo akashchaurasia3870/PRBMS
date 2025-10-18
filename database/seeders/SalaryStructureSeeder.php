@@ -10,6 +10,6 @@ class SalaryStructureSeeder extends Seeder
     public function run(): void
     {
         // generate 50 sample salary structures
-        SalaryStructure::factory()->count(26)->create();
+        SalaryStructure::factory()->count(15)->create();
     }
 }

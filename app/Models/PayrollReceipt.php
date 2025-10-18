@@ -21,4 +21,9 @@ class PayrollReceipt extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function auditLogs()
+    {
+        return $this->morphMany(\App\Models\AuditLog::class, 'auditable');
+    }
 }

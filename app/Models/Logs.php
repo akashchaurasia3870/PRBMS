@@ -14,4 +14,9 @@ class Logs extends Model
         'mac_address',
         'request_data',
     ];
+
+    // public function auditLogs()
+    // {
+    //     return $this->morphMany(\App\Models\AuditLog::class, 'auditable');
+    // }
 }
