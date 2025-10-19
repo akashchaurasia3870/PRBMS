@@ -60,7 +60,7 @@ class ExpenseTrackerService implements BaseServiceInterface
 
     public function getCreateView(array $params = [])
     {
-        return $this->expense_type_repository->getIndexData($params);
+        return $this->expense_type_repository->all()->where('deleted', 0);
     }
 
     public function getEditView(int $id)
@@ -97,4 +97,45 @@ class ExpenseTrackerService implements BaseServiceInterface
     {
         return $this->repository->getDetailData($id);
     }
+    
+    public function getDashboardData(array $filters = [])
+    {
+        $totalExpenses = $this->repository->getTotalExpenses($filters);
+        $expensesByType = $this->repository->getExpensesByType($filters);
+        $recentExpenses = $this->repository->search($filters, 5);
+        
+        return [
+            'total_expenses' => $totalExpenses,
+            'expenses_by_type' => $expensesByType,
+            'recent_expenses' => $recentExpenses,
+            'expense_count' => $this->repository->search($filters, 1)->total()
+        ];
+    }
+    
+    public function getMonthlyExpenses()
+    {
+        return $this->repository->getMonthlyExpenses();
+    }
+    
+    public function getAllForExport(array $filters = [])
+    {
+        return $this->repository->getAllForExport($filters);
+    }
+    
+    public function getByIds(array $ids)
+    {
+        return $this->repository->getByIds($ids);
+    }
+    
+    public function bulkDelete(array $ids)
+    {
+        return $this->repository->bulkDelete($ids);
+    }
+    
+    public function getExpenseTypes()
+    {
+        return $this->expense_type_repository->all();
+    }
+    
+
 }

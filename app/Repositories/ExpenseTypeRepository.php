@@ -17,7 +17,7 @@ class ExpenseTypeRepository implements BaseRepositoryInterface
 
     public function all(array $columns = ['*'])
     {
-        return $this->model->all($columns);
+        return $this->model->where('deleted', 0)->get($columns);
     }
 
     public function find(int $id, array $columns = ['*'])
@@ -39,7 +39,13 @@ class ExpenseTypeRepository implements BaseRepositoryInterface
 
     public function delete(int $id)
     {
-        return $this->find($id)->delete();
+        $record = $this->find($id);
+        $record->update([
+            'deleted' => 1,
+            'deleted_by' => auth()->id(),
+            'deleted_at' => now()
+        ]);
+        return $record;
     }
 
     public function paginate(int $perPage = 10, array $columns = ['*'])
@@ -49,22 +55,59 @@ class ExpenseTypeRepository implements BaseRepositoryInterface
 
     public function search(array $filters = [], int $perPage = 10)
     {
-        $query = $this->model->newQuery();
-        foreach ($filters as $key => $value) {
-            if ($value !== null) {
-                $query->where($key, 'LIKE', "%$value%");
-            }
+        $query = $this->model->newQuery()->where('deleted', 0);
+        
+        if (!empty($filters['type'])) {
+            $query->where('type', 'LIKE', "%{$filters['type']}%");
         }
-        return $query->paginate($perPage);
+        
+        if (!empty($filters['description'])) {
+            $query->where('description', 'LIKE', "%{$filters['description']}%");
+        }
+        
+        if (!empty($filters['created_date'])) {
+            $query->whereDate('created_at', $filters['created_date']);
+        }
+        
+        return $query->orderBy('created_at', 'desc')->paginate($perPage);
     }
 
     public function getIndexData(array $filters = [])
     {
-        return $this->search($filters);
+        return $this->search($filters, 10);
     }
 
     public function getDetailData(int $id)
     {
         return $this->find($id);
+    }
+    
+    public function getAllForExport(array $filters = [])
+    {
+        $query = $this->model->newQuery()->where('deleted', 0);
+        
+        if (!empty($filters['type'])) {
+            $query->where('type', 'LIKE', "%{$filters['type']}%");
+        }
+        
+        if (!empty($filters['description'])) {
+            $query->where('description', 'LIKE', "%{$filters['description']}%");
+        }
+        
+        return $query->orderBy('created_at', 'desc')->get();
+    }
+    
+    public function getByIds(array $ids)
+    {
+        return $this->model->whereIn('id', $ids)->where('deleted', 0)->get();
+    }
+    
+    public function bulkDelete(array $ids)
+    {
+        return $this->model->whereIn('id', $ids)->update([
+            'deleted' => 1,
+            'deleted_by' => auth()->id(),
+            'deleted_at' => now()
+        ]);
     }
 }

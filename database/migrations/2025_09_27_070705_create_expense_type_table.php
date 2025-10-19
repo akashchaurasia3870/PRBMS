@@ -16,7 +16,7 @@ return new class extends Migration {
             $table->unsignedBigInteger('updated_by')->nullable();
             $table->softDeletes();
             $table->unsignedBigInteger('deleted_by')->nullable();
-            $table->boolean('delete')->default(0);
+            $table->boolean('deleted')->default(0);
         });
     }
 

@@ -94,6 +94,21 @@ class ExpenseTrackerTypeService implements BaseServiceInterface
     {
         return $this->repository->getDetailData($id);
     }
+    
+    public function getAllForExport(array $filters = [])
+    {
+        return $this->repository->getAllForExport($filters);
+    }
+    
+    public function getByIds(array $ids)
+    {
+        return $this->repository->getByIds($ids);
+    }
+    
+    public function bulkDelete(array $ids)
+    {
+        return $this->repository->bulkDelete($ids);
+    }
     // public function getAllExpenses($filters = [])
     // {
     //     $query = ExpenseType::query();
@@ -110,7 +125,7 @@ class ExpenseTrackerTypeService implements BaseServiceInterface
     //     //     $query->where('description', 'like', "%{$filters['description']}%");
     //     // }
 
-    //     $expenseTypes =  $query->where('delete', 0)->paginate(10)->appends(request()->except('page'));
+    //     $expenseTypes =  $query->where('deleted', 0)->paginate(10)->appends(request()->except('page'));
     //     return compact('expenseTypes');
     // }
 
@@ -129,7 +144,7 @@ class ExpenseTrackerTypeService implements BaseServiceInterface
     // public function deleteExpense($id, $userId)
     // {
     //     $expense = ExpenseType::findOrFail($id);
-    //     $expense->delete = 1;
+    //     $expense->deleted = 1;
     //     $expense->deleted_by = $userId;
     //     $expense->save();
     //     return $expense;
@@ -137,6 +152,6 @@ class ExpenseTrackerTypeService implements BaseServiceInterface
 
     // public function getExpenseTypes()
     // {
-    //     return ExpenseType::where('delete', 0)->get();
+    //     return ExpenseType::where('deleted', 0)->get();
     // }
 }

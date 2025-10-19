@@ -1,10 +1,36 @@
 <x-app-layout>
-<div class="container mx-auto px-4 py-6">
-    <h1 class="text-xl font-bold mb-4">Edit Expense Record</h1>
-    <form method="POST" action="{{ route('expense.v2.edit', $data->id) }}" class="bg-white p-6 rounded shadow">
-        @csrf
-        @method('POST')
-        @include('modules.expense_tracker.form')
-    </form>
-</div>
+    <div class="">
+        <div class="mx-auto">
+            <div class="bg-white shadow-xl rounded-lg overflow-hidden">
+                <!-- Header -->
+                <div class="bg-gradient-to-r from-yellow-500 to-yellow-600 px-6 py-8">
+                    <div class="flex items-center mb-4">
+                        <div class="text-4xl text-white mr-4">✏️</div>
+                        <div>
+                            <h1 class="text-2xl sm:text-3xl font-bold text-white">Edit Expense</h1>
+                            <p class="text-yellow-100 mt-1">Update expense #{{ $data->id }} details</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Alert -->
+                <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4">
+                    <div class="flex">
+                        <div class="text-yellow-400 mr-3">⚠️</div>
+                        <p class="text-yellow-800 text-sm">Editing expense created on {{ \Carbon\Carbon::parse($data->created_at)->format('M d, Y') }}</p>
+                    </div>
+                </div>
+
+                <!-- Form -->
+                <div class="p-6 sm:p-8">
+                    <form method="POST" action="{{ route('expense.v2.edit', $data->id) }}" class="space-y-6">
+                        @csrf
+                        @method('POST')
+                        @php $expense = $data; @endphp
+                        @include('modules.expense_tracker.form')
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 </x-app-layout>

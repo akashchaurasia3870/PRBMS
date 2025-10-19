@@ -29,9 +29,9 @@
                 {{-- Navigation Header --}}
                 @livewire('navigation-menu')
                 {{-- Main Layout --}}
-                <div class="flex flex-1">
+                <div class="flex flex-1 overflow-y-auto">
                     {{-- Page Content --}}
-                    <main class="flex-1 pt-2 pb-4 px-2 bg-white-100 h-[92vh]">
+                    <main class="flex-1 pt-2 pb-4 px-2 bg-white-100 h-[92vh] overflow-y-auto">
                         {{ $slot }}
                     </main>
             

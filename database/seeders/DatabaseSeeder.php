@@ -23,6 +23,7 @@ class DatabaseSeeder extends Seeder
             UserRolesSeeder::class,
             SalaryStructureSeeder::class,
             PayrollReceiptSeeder::class,
+            ExpenseTypeSeeder::class,
 
         ]);
     }

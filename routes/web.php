@@ -187,6 +187,8 @@ Route::prefix('dashboard')->group(function(){
 
     Route::prefix('expenses')->group(function () {
         // api to get views 
+        Route::get('/v1/dashboard', [ExpenseTrackerController::class, 'getDashboard'])->name('expense.v1.dashboard');
+        Route::get('/v1/audit-logs', [ExpenseTrackerController::class, 'getAuditLogs'])->name('expense.audit.logs');
         Route::get('/v1/index', [ExpenseTrackerController::class, 'getIndexView'])->name('expense.v1.index');
         Route::get('/v1/new', [ExpenseTrackerController::class, 'getCreateView'])->name('expense.v1.new');
         Route::get('/v1/edit/{id}', [ExpenseTrackerController::class, 'getEditView'])->name('expense.v1.edit');
