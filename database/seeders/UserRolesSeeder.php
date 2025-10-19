@@ -9,6 +9,6 @@ class UserRolesSeeder extends Seeder
 {
     public function run(): void
     {
-        UserRoles::factory()->count(20)->create();
+        UserRoles::factory()->count(15)->create();
     }
 }

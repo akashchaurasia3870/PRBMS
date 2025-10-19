@@ -4,10 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-class Attendence extends Model
+class Attendance extends Model
 {
     use HasFactory;
-    protected $table = 'attendence';
+    protected $table = 'attendance';
     protected $fillable = [
         'user_id',
         'date',
@@ -18,4 +18,9 @@ class Attendence extends Model
         'deleted_by',
         'deleted_at'
     ];
+
+    public function auditLogs()
+    {
+        return $this->morphMany(\App\Models\AuditLog::class, 'auditable');
+    }
 }

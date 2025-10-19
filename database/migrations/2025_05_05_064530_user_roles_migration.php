@@ -16,9 +16,11 @@ return new class extends Migration
             $table->integer('user_id');
             $table->integer('role_id');
             $table->integer('role_lvl');
-            $table->boolean('deleted')->default(false);
-            $table->unsignedBigInteger('deleted_by')->nullable();
+            $table->string('created_by', 50)->nullable();
+            $table->string('update_by', 50)->nullable();
+            $table->string('deleted_by', 50)->nullable();
             $table->timestamp('deleted_at')->nullable();
+            $table->boolean('deleted')->default(false);
             $table->timestamps();
 
         });

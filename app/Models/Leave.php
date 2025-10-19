@@ -21,4 +21,9 @@ class Leave extends Model
         'deleted_by',
         'deleted_at'
     ];
+
+    public function auditLogs()
+    {
+        return $this->morphMany(\App\Models\AuditLog::class, 'auditable');
+    }
 }

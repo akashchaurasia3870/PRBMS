@@ -14,9 +14,11 @@ return new class extends Migration
         Schema::create('role_lvl',function(Blueprint $table){
             $table->id('lvl_id');
             $table->string('lvl_name',10);
-            $table->boolean('deleted')->default(false);
-            $table->unsignedBigInteger('deleted_by')->nullable();
+            $table->string('created_by', 50)->nullable();
+            $table->string('update_by', 50)->nullable();
+            $table->string('deleted_by', 50)->nullable();
             $table->timestamp('deleted_at')->nullable();
+            $table->boolean('deleted')->default(false);
             $table->timestamps();
         });
     }
@@ -26,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('roles_lvl');
+        Schema::dropIfExists('role_lvl');
     }
 };

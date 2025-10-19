@@ -16,9 +16,11 @@ return new class extends Migration
             $table->string('role_name',50);
             $table->string('role_desc',255);
             $table->enum('role_lvl', [0, 1, 2, 3]);
-            $table->boolean('deleted')->default(false);
-            $table->unsignedBigInteger('deleted_by')->nullable();
+            $table->string('created_by', 50)->nullable();
+            $table->string('update_by', 50)->nullable();
+            $table->string('deleted_by', 50)->nullable();
             $table->timestamp('deleted_at')->nullable();
+            $table->boolean('deleted')->default(false);
             $table->timestamps();
         });
     }

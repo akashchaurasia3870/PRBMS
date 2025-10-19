@@ -12,9 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
+            $table->string('created_by', 50)->nullable();
+            $table->string('update_by', 50)->nullable();
+            $table->string('deleted_by', 50)->nullable();
+            $table->timestamp('deleted_at')->nullable();
             $table->boolean('deleted')->default(false);
-            $table->unsignedBigInteger('deleted_by')->nullable(); // Assuming it's a user ID of who deleted
-            $table->timestamp('deleted_at')->nullable(); // Soft delete timestamp
         });
     }
 

@@ -15,4 +15,9 @@ class Documents extends Model
         'doc_desc',
         'doc_url',
     ];
+
+    public function auditLogs()
+    {
+        return $this->morphMany(\App\Models\AuditLog::class, 'auditable');
+    }
 }

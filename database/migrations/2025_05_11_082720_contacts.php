@@ -25,9 +25,11 @@ return new class extends Migration
             $table->string('contact_no',15);
             $table->string('emergency_contact_no',15);
             $table->string('pincode',10);
-            $table->boolean('deleted')->default(false);
-            $table->unsignedBigInteger('deleted_by')->nullable();
+            $table->string('created_by', 50)->nullable();
+            $table->string('update_by', 50)->nullable();
+            $table->string('deleted_by', 50)->nullable();
             $table->timestamp('deleted_at')->nullable();
+            $table->boolean('deleted')->default(false);
             $table->timestamps();
 
         });

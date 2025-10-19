@@ -4,13 +4,13 @@
         <h2 class="text-3xl font-extrabold text-gray-800 mb-0">🗓️ Mark Attendance</h2>
 
         <div class="flex justify-end mb-4 space-x-2">
-            <form action="{{ route('dashboard_store.mark_all_attendence') }}" method="POST">
+            <form action="{{ route('dashboard_store.mark_all_attendance') }}" method="POST">
                 @csrf
                 <input type="hidden" name="date" value="{{ now()->toDateString() }}">
                 <input type="hidden" name="status" value="present">
                 <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">Mark All Present</button>
             </form>
-            <form action="{{ route('dashboard_store.mark_all_attendence') }}" method="POST">
+            <form action="{{ route('dashboard_store.mark_all_attendance') }}" method="POST">
                 @csrf
                 <input type="hidden" name="date" value="{{ now()->toDateString() }}">
                 <input type="hidden" name="status" value="absent">
@@ -39,7 +39,7 @@
                                 </form>
                             </td>
                             <td class="px-5 py-4 flex space-x-2">
-                                <form action="{{ route('dashboard_store.user_attendence') }}" method="POST" class="inline">
+                                <form action="{{ route('dashboard_store.user_attendance') }}" method="POST" class="inline">
                                     @csrf
                                     <input type="hidden" name="user_id" value="{{ $user->id }}">
                                     <input type="hidden" name="status" value="present">
@@ -48,7 +48,7 @@
                                         <span>Present</span>
                                     </button>
                                 </form>
-                                <form action="{{ route('dashboard_store.user_attendence') }}" method="POST" class="inline">
+                                <form action="{{ route('dashboard_store.user_attendance') }}" method="POST" class="inline">
                                     @csrf
                                     <input type="hidden" name="user_id" value="{{ $user->id }}">
                                     <input type="hidden" name="status" value="absent">
@@ -57,7 +57,7 @@
                                         <span>Absent</span>
                                     </button>
                                 </form>
-                                <a href="{{ route('dashboard_details.user_attendence', ['id' => $user->id]) }}" 
+                                <a href="{{ route('dashboard_details.user_attendance', ['id' => $user->id]) }}" 
                                    class="flex items-center space-x-1 text-blue-600 hover:bg-blue-50 border border-blue-100 rounded-lg px-3 py-1 transition">
                                     <span>View Details</span>
                                 </a>

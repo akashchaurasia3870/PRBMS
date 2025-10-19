@@ -10,6 +10,8 @@
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+        <script src="//unpkg.com/alpinejs" defer></script>
+
 
 
         <!-- Scripts -->
@@ -27,9 +29,9 @@
                 {{-- Navigation Header --}}
                 @livewire('navigation-menu')
                 {{-- Main Layout --}}
-                <div class="flex flex-1">
+                <div class="flex flex-1 overflow-y-auto">
                     {{-- Page Content --}}
-                    <main class="flex-1 pt-2 pb-4 px-2 bg-white-100 h-[92vh]">
+                    <main class="flex-1 pt-2 pb-4 px-2 bg-white-100 h-[92vh] overflow-y-auto">
                         {{ $slot }}
                     </main>
             

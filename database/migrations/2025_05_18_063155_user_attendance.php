@@ -11,16 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('attendence',function(Blueprint $table){
+        Schema::create('attendance',function(Blueprint $table){
             $table->id();
             $table->unsignedBigInteger('user_id');
             $table->enum('status',['present','absent','late','on_leave','work_from_home']);
             $table->timestamp('check_in_time')->useCurrent();
             $table->timestamp('check_out_time')->useCurrent();
             $table->timestamp('date')->useCurrent();
-            $table->boolean('deleted')->default(false);
-            $table->unsignedBigInteger('deleted_by')->nullable();
+            $table->string('created_by', 50)->nullable();
+            $table->string('update_by', 50)->nullable();
+            $table->string('deleted_by', 50)->nullable();
             $table->timestamp('deleted_at')->nullable();
+            $table->boolean('deleted')->default(false);
             $table->timestamps();
         });
     }
@@ -30,6 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('attendence');
+        Schema::dropIfExists('attendance');
     }
 };
