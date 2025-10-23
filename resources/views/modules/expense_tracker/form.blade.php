@@ -2,7 +2,7 @@
     <!-- Type Selection -->
     <div>
         <label class="block text-sm font-medium text-gray-700 mb-2">
-            <span class="text-red-500">*</span> Expense Type
+            <span class="text-red-500">*</span> 🏷️ Expense Type
         </label>
         <select name="type" required class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('type') border-red-500 @enderror">
             <option value="">Select expense type...</option>
@@ -29,7 +29,7 @@
     <!-- Description -->
     <div>
         <label class="block text-sm font-medium text-gray-700 mb-2">
-            <span class="text-red-500">*</span> Description
+            <span class="text-red-500">*</span> 📝 Description
         </label>
         <textarea name="description" rows="3" required placeholder="Enter detailed description of the expense..." 
                   class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('description') border-red-500 @enderror">{{ old('description', $expense->description ?? '') }}</textarea>
@@ -42,7 +42,7 @@
     <!-- Amount -->
     <div>
         <label class="block text-sm font-medium text-gray-700 mb-2">
-            <span class="text-red-500">*</span> Amount
+            <span class="text-red-500">*</span> 💰 Amount
         </label>
         <div class="relative">
             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -62,7 +62,7 @@
     <!-- Expense Date -->
     <div>
         <label class="block text-sm font-medium text-gray-700 mb-2">
-            <span class="text-red-500">*</span> Expense Date
+            <span class="text-red-500">*</span> 📅 Expense Date
         </label>
         <input type="date" name="expense_date" required 
                value="{{ old('expense_date', isset($expense) ? $expense->expense_date : date('Y-m-d')) }}"

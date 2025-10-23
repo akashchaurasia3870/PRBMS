@@ -25,31 +25,81 @@
                         </div>
                     </div>
 
-                    <!-- Filters -->
+                    <!-- Advanced Filters -->
                     <div class="bg-gray-50 p-4 rounded-lg mb-6">
-                        <form method="GET" class="grid grid-cols-1 md:grid-cols-5 gap-3 items-end">
-                            <div>
-                                <label class="block text-xs font-semibold text-gray-600 mb-1">Type</label>
-                                <input type="text" name="type" value="{{ request('type') }}" placeholder="Filter by type" class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-semibold text-gray-600 mb-1">Date From</label>
-                                <input type="date" name="date_from" value="{{ request('date_from') }}" class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-semibold text-gray-600 mb-1">Date To</label>
-                                <input type="date" name="date_to" value="{{ request('date_to') }}" class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-semibold text-gray-600 mb-1">Amount Range</label>
-                                <div class="flex space-x-2">
-                                    <input type="number" name="amount_min" value="{{ request('amount_min') }}" placeholder="Min" class="w-1/2 text-sm border border-gray-300 rounded-lg px-2 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                    <input type="number" name="amount_max" value="{{ request('amount_max') }}" placeholder="Max" class="w-1/2 text-sm border border-gray-300 rounded-lg px-2 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-semibold text-gray-800">🔍 Search & Filter Expenses</h3>
+                            <button type="button" onclick="toggleAdvancedFilters()" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                <span id="advancedToggleText">Show Advanced</span> ▼
+                            </button>
+                        </div>
+                        
+                        <form method="GET" id="filterForm">
+                            <!-- Basic Filters -->
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4">
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-600 mb-1">Search</label>
+                                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Search description, type..." class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-600 mb-1">Expense Type</label>
+                                    <select name="expense_type_id" class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        <option value="">All Types</option>
+                                        @php
+                                            $expenseTypes = \App\Models\ExpenseType::all();
+                                        @endphp
+                                        @foreach($expenseTypes as $type)
+                                            <option value="{{ $type->id }}" {{ request('expense_type_id') == $type->id ? 'selected' : '' }}>
+                                                {{ $type->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-600 mb-1">Date Range</label>
+                                    <select name="date_range" class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        <option value="">All Dates</option>
+                                        <option value="today" {{ request('date_range') == 'today' ? 'selected' : '' }}>📅 Today</option>
+                                        <option value="this_week" {{ request('date_range') == 'this_week' ? 'selected' : '' }}>📅 This Week</option>
+                                        <option value="this_month" {{ request('date_range') == 'this_month' ? 'selected' : '' }}>📅 This Month</option>
+                                        <option value="last_month" {{ request('date_range') == 'last_month' ? 'selected' : '' }}>📅 Last Month</option>
+                                        <option value="this_year" {{ request('date_range') == 'this_year' ? 'selected' : '' }}>📅 This Year</option>
+                                    </select>
+                                </div>
+                                <div class="flex space-x-2 items-end">
+                                    <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition duration-200 flex-1">🔍 Search</button>
+                                    <a href="{{ route('expense.v1.index') }}" class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-3 py-2 rounded-lg text-sm font-medium transition duration-200">Clear</a>
                                 </div>
                             </div>
-                            <div class="flex space-x-2">
-                                <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition duration-200">🔍 Filter</button>
-                                <a href="{{ route('expense.v1.index') }}" class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition duration-200">Clear</a>
+                            
+                            <!-- Advanced Filters -->
+                            <div id="advancedFilters" class="hidden border-t pt-4">
+                                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+                                    <div>
+                                        <label class="block text-xs font-semibold text-gray-600 mb-1">Custom Date From</label>
+                                        <input type="date" name="date_from" value="{{ request('date_from') }}" class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-semibold text-gray-600 mb-1">Custom Date To</label>
+                                        <input type="date" name="date_to" value="{{ request('date_to') }}" class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-semibold text-gray-600 mb-1">Amount Range</label>
+                                        <div class="flex space-x-1">
+                                            <input type="number" name="amount_min" value="{{ request('amount_min') }}" placeholder="Min" class="w-1/2 text-sm border border-gray-300 rounded-lg px-2 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                            <input type="number" name="amount_max" value="{{ request('amount_max') }}" placeholder="Max" class="w-1/2 text-sm border border-gray-300 rounded-lg px-2 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-semibold text-gray-600 mb-1">Sort By</label>
+                                        <select name="sort_by" class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                            <option value="date_desc" {{ request('sort_by') == 'date_desc' ? 'selected' : '' }}>Date (Newest First)</option>
+                                            <option value="date_asc" {{ request('sort_by') == 'date_asc' ? 'selected' : '' }}>Date (Oldest First)</option>
+                                            <option value="amount_desc" {{ request('sort_by') == 'amount_desc' ? 'selected' : '' }}>Amount (High to Low)</option>
+                                            <option value="amount_asc" {{ request('sort_by') == 'amount_asc' ? 'selected' : '' }}>Amount (Low to High)</option>
+                                        </select>
+                                    </div>
+                                </div>
                             </div>
                         </form>
                     </div>
@@ -204,6 +254,20 @@
     </div>
 
     <script>
+    // Advanced Filters Toggle
+    function toggleAdvancedFilters() {
+        const advancedFilters = document.getElementById('advancedFilters');
+        const toggleText = document.getElementById('advancedToggleText');
+        
+        if (advancedFilters.classList.contains('hidden')) {
+            advancedFilters.classList.remove('hidden');
+            toggleText.textContent = 'Hide Advanced';
+        } else {
+            advancedFilters.classList.add('hidden');
+            toggleText.textContent = 'Show Advanced';
+        }
+    }
+    
     // Bulk Actions
     function toggleAll() {
         const selectAll = document.getElementById('selectAll');

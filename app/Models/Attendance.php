@@ -19,6 +19,11 @@ class Attendance extends Model
         'deleted_at'
     ];
 
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
     public function auditLogs()
     {
         return $this->morphMany(\App\Models\AuditLog::class, 'auditable');

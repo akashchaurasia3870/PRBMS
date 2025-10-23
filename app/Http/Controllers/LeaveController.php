@@ -3,39 +3,35 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Services\LeaveService;
 use App\Models\Leave;
 use App\Models\User;
 
 class LeaveController extends Controller
 {
+    protected LeaveService $service;
+
+    public function __construct(LeaveService $service)
+    {
+        $this->service = $service;
+    }
 
     public function index()
     {
-        $query = Leave::join('users', 'users_leave.user_id', '=', 'users.id')
-            ->select('users_leave.*', 'users.name')
-            ->where('users_leave.deleted', '=', '0')
-            ->where('users.deleted', '=', '0');
-
-        if ($user = request('user')) {
-            $query->where('users.name', 'like', "%$user%");
-        }
-        if ($status = request('status')) {
-            $query->where('users_leave.status', $status);
-        }
-        if ($from = request('from_date')) {
-            $query->whereDate('users_leave.start_date', '>=', $from);
-        }
-        if ($to = request('to_date')) {
-            $query->whereDate('users_leave.end_date', '<=', $to);
-        }
-
-        $leaves = $query->orderBy('users_leave.created_at', 'desc')->paginate(10)->appends(request()->except('page'));
-        return view('modules.leave.leave-request',['leaves'=>$leaves]);
+        $filters = request()->only(['user', 'status', 'leave_type', 'from_date', 'to_date', 'days_min', 'days_max', 'search']);
+        $leaves = $this->service->search($filters, 10);
+        return view('modules.leave.index', compact('leaves'));
+    }
+    
+    public function dashboard()
+    {
+        $dashboardData = $this->service->getDashboardData();
+        return view('modules.leave.dashboard', $dashboardData);
     }
 
     public function leave_request_view(Request $request)
     {
-        $users = User::where('deleted', 0)->get();
+        $users = $this->service->getUsers();
         return view('modules.leave.apply-leave',['users'=>$users]);
     }
 
@@ -50,13 +46,8 @@ class LeaveController extends Controller
             'description' => 'nullable|string',
         ]);
 
-        $leave = Leave::create($validated);
-        $leaves = Leave::join('users', 'users_leave.user_id', '=', 'users.id')
-            ->select('users_leave.*', 'users.name')
-            ->where('users_leave.deleted', '=', '0')
-            ->where('users.deleted', '=', '0')
-            ->paginate(10);
-        return view('modules.leave.leave-request',['leaves'=>$leaves]);
+        $this->service->submitCreateForm($validated);
+        return redirect()->route('dashboard_leave.index')->with('success', 'Leave request submitted successfully');
     }
 
     public function get_leave_info(Request $request)
@@ -73,7 +64,6 @@ class LeaveController extends Controller
 
     public function edit_leave_info(Request $request)
     {
-        
         $validated = $request->validate([
             'id' => 'required|integer',
             'leave_type' => 'required',
@@ -83,9 +73,7 @@ class LeaveController extends Controller
             'description' => 'string',
         ]);
 
-        $leave = Leave::findOrFail($request->id);
-        $leave->update($validated);
-
+        $this->service->update($request->id, $validated);
         
         $leave = Leave::join('users', 'users_leave.user_id', '=', 'users.id')
             ->select('users_leave.*', 'users.name')
@@ -95,13 +83,11 @@ class LeaveController extends Controller
             ->first();
         
         return view('modules.leave.leave-info-detail',['data'=>$leave,'message' => 'Leave Updated successfully']);
-
     }
 
     public function destroy_leave_info(Request $request)
     {
-        $leave = Leave::findOrFail($request->id);
-        $leave->update(['deleted' => '1']);
+        $this->service->destroy($request->id);
 
         $leaves = Leave::join('users', 'users_leave.user_id', '=', 'users.id')
             ->select('users_leave.*', 'users.name')
@@ -113,8 +99,7 @@ class LeaveController extends Controller
 
     public function approve_leave_status(Request $request)
     {
-        $leave = Leave::findOrFail($request->id);
-        $leave->update(['status' => 'approved']);
+        $this->service->approveLeave($request->id);
 
         $leaves = Leave::join('users', 'users_leave.user_id', '=', 'users.id')
             ->select('users_leave.*', 'users.name')
@@ -125,11 +110,7 @@ class LeaveController extends Controller
     }
     public function reject_leave_status(Request $request)
     {
-        $reason = $request->reason;
-        $leave = Leave::findOrFail($request->id);
-        $leave->status = 'rejected';
-        $leave->rejection_reason = $reason;
-        $leave->save();
+        $this->service->rejectLeave($request->id, $request->reason);
 
         $leaves = Leave::join('users', 'users_leave.user_id', '=', 'users.id')
             ->select('users_leave.*', 'users.name')

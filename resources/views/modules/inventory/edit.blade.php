@@ -8,10 +8,10 @@
                 <button type="button" class="absolute top-2 right-2 text-green-700" onclick="this.parentElement.remove()">&times;</button>
             </div>
         @endif
-        <form action="{{ route('inventory.update', $inventory->id) }}" method="POST" enctype="multipart/form-data" class="space-y-4">
+        <form action="{{ route('inventory.update', $data->id) }}" method="POST" enctype="multipart/form-data" class="space-y-4">
             @csrf
             @method('PUT')
-            @include('modules.inventory.form', ['mode' => 'edit'])
+            @include('modules.inventory.form', ['mode' => 'edit', 'inventory' => $data])
             <div class="flex gap-2 mt-6">
                 <button type="submit" class="flex items-center space-x-1 text-white bg-blue-600 hover:bg-blue-700 border border-blue-100 rounded-lg px-4 py-2 transition font-semibold">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5h7M11 12h7m-7 7h7M5 5h.01M5 12h.01M5 19h.01" /></svg>

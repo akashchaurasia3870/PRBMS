@@ -2,138 +2,231 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\UserService;
+use App\Interfaces\BaseControllerInterface;
+use App\Models\AuditLog;
 use Illuminate\Http\Request;
-use App\Models\User;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Auth;
-use App\Services\UserInfoService;
-class UserController extends Controller
+use Illuminate\Support\Facades\Hash;
+
+class UserController extends Controller implements BaseControllerInterface
 {
-    protected $userInfoService;
+    protected UserService $service;
 
-    public function __construct(UserInfoService $userInfoService){
-        $this->userInfoService = $userInfoService;
+    public function __construct(UserService $service)
+    {
+        $this->service = $service;
     }
 
-    public function index()
+    public function getIndexView(Request $request)
     {
-        $users = User::where('deleted', '!=', 1)->paginate(10);
-        return view('modules.users.list-users',['users'=>$users]);
-    }
-
-    public function detail(Request $request)
-    {
-        $user = User::find($request->id);
-        if (!$user) {
-            return response()->json(['error' => 'User not found'], 404);
-        }
-        return view('modules.users.edit-user',['user'=>$user]);
-
-    }
-
-    public function get_user_details(Request $request)
-    {
-        $data = $this->userInfoService->getUserDetails($request->id);
-        // dd($data);
-        if (!$data) {
-            return response()->json(['error' => 'User not found'], 404);
-        }
-        return view('modules.users.details-user',['data'=>$data]);
-
-    }
-
-    public function update_contact(Request $request)
-    {
-        $data = $this->userInfoService->updateContact($request);
-        // dd($data);
-        if (!$data) {
-            return response()->json(['error' => 'User not found'], 404);
-        }
-        return redirect()->route('dashboard_details.user', ['id' => $request->user_id])
-            ->with('success', 'Contact updated successfully!')
-            ->with('data', $data);
-
-    }
-
-    public function update_documents(Request $request)
-    {
-
-        $data = $this->userInfoService->updateDocuments($request);
-
-        if (!$data) {
-            return response()->json(['error' => 'User not found'], 404);
-        }
-        return redirect()->route('dashboard_details.user', ['id' => $request->user_id])
-            ->with('success', 'Documents updated successfully!')
-            ->with('data', $data);
-    }
-
-    public function create(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|min:5|max:255',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:8',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
-
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => bcrypt($request->password),
-            'email_verified_at' => now(),
-        ]);
-
-        // return response()->json($user, 201);
-        return redirect()->route('dashboard_edit.user', $user->id)->with('success', 'User Created successfully!');
-
-    }
-
-    public function update(Request $request)
-    {
-        $user = User::find($request->id);
-
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|min:5|max:255',
-            'email' => 'required|email|unique:users,email,' . $user->id,
-            'password' => 'required|string|min:8|confirmed',
-        ]);
-
-        // if ($validator->fails()) {
-        //     return response()->json(['errors' => $validator->errors()], 422);
-        //     // return view('modules.users.edit-user',['errors' => $validator->errors()]);
-        // }
-
-        if ($validator->fails()) {
-            return redirect()->route('dashboard_edit.user', $request->id)->withErrors($validator)
-            ->withInput();
+        // Handle export
+        if ($request->has('export') && $request->export === 'csv') {
+            return $this->exportToCsv($request->all());
         }
         
-        $user->update([
-            'name' => $request->name ?? $user->name,
-            'email' => $request->email ?? $user->email,
-            'password' => $request->password ? bcrypt($request->password) : $user->password,
-        ]);
-
-        return redirect()->route('dashboard_edit.user', $request->id)->with('success', 'User updated successfully!');
-
+        // Handle bulk actions
+        if ($request->has('bulk_delete')) {
+            return $this->bulkDelete($request->bulk_delete);
+        }
+        
+        if ($request->has('export_selected')) {
+            return $this->exportSelected($request->export_selected);
+        }
+        
+        $data = $this->service->getIndexView($request->all());
+        return view('modules.users.index', compact('data'));
+    }
+    
+    private function exportToCsv($filters = [])
+    {
+        $users = $this->service->getAllForExport($filters);
+        
+        $filename = 'users_' . date('Y-m-d_H-i-s') . '.csv';
+        
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ];
+        
+        $callback = function() use ($users) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, ['ID', 'Name', 'Email', 'Created At', 'Status']);
+            
+            foreach ($users as $user) {
+                fputcsv($file, [
+                    $user->id,
+                    $user->name,
+                    $user->email,
+                    $user->created_at,
+                    $user->deleted ? 'Inactive' : 'Active'
+                ]);
+            }
+            fclose($file);
+        };
+        
+        return response()->stream($callback, 200, $headers);
+    }
+    
+    private function bulkDelete($ids)
+    {
+        try {
+            $idArray = explode(',', $ids);
+            $this->service->bulkDelete($idArray);
+            return redirect()->route('dashboard_list.user')->with('success', count($idArray) . ' users deleted successfully.');
+        } catch (\Exception $e) {
+            return redirect()->route('dashboard_list.user')->with('error', 'Failed to delete users: ' . $e->getMessage());
+        }
+    }
+    
+    private function exportSelected($ids)
+    {
+        $idArray = explode(',', $ids);
+        $users = $this->service->getByIds($idArray);
+        
+        $filename = 'selected_users_' . date('Y-m-d_H-i-s') . '.csv';
+        
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ];
+        
+        $callback = function() use ($users) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, ['ID', 'Name', 'Email', 'Created At', 'Status']);
+            
+            foreach ($users as $user) {
+                fputcsv($file, [
+                    $user->id,
+                    $user->name,
+                    $user->email,
+                    $user->created_at,
+                    $user->deleted ? 'Inactive' : 'Active'
+                ]);
+            }
+            fclose($file);
+        };
+        
+        return response()->stream($callback, 200, $headers);
     }
 
-    public function destroy(Request $request)
+    public function getCreateView(Request $request)
     {
-        $user = User::find($request->id);
-        if (!$user || $user->deleted_at) {
-            redirect()->route('dashboard_list.user',['error' => 'User not found']);
+        $data = $this->service->getCreateView($request->all());
+        return view('modules.users.new', compact('data'));
+    }
+
+    public function getEditView(Request $request)
+    {
+        $data = $this->service->getEditView($request->route('id'));
+        return view('modules.users.edit', compact('data'));
+    }
+
+    public function getDetailView(Request $request)
+    {
+        $data = $this->service->getDetailView($request->route('id'));
+        return view('modules.users.show', compact('data'));
+    }
+
+
+
+
+
+
+
+    public function submitCreateForm(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|min:3|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+        
+        try {
+            $data = $request->all();
+            $data['password'] = Hash::make($data['password']);
+            $data['email_verified_at'] = now();
+            $user = $this->service->submitCreateForm($data);
+            
+            // Audit Log
+            AuditLog::create([
+                'auditable_id' => $user->id,
+                'auditable_type' => 'App\\Models\\User',
+                'user_id' => auth()->id(),
+                'action' => 'created',
+                'changes' => ['name' => $user->name, 'email' => $user->email],
+                'remarks' => 'User created'
+            ]);
+            
+            return redirect()->route('dashboard_list.user')->with('success', 'User created successfully.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Failed to create user: ' . $e->getMessage())->withInput();
         }
+    }
 
-        $user->deleted_at = now();
-        $user->deleted = true;
-        $user->deleted_by = Auth::user()->id;
-        $user->save();
+    public function submitUpdateForm(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|min:3|max:255',
+            'email' => 'required|email|unique:users,email,' . $request->route('id'),
+            'password' => 'nullable|string|min:8|confirmed',
+        ]);
+        
+        try {
+            $data = $request->all();
+            if (!empty($data['password'])) {
+                $data['password'] = Hash::make($data['password']);
+            } else {
+                unset($data['password']);
+            }
+            
+            $oldData = $this->service->getById($request->route('id'))->toArray();
+            $user = $this->service->submitUpdateForm($request->route('id'), $data);
+            
+            // Audit Log
+            AuditLog::create([
+                'auditable_id' => $user->id,
+                'auditable_type' => 'App\\Models\\User',
+                'user_id' => auth()->id(),
+                'action' => 'updated',
+                'changes' => ['old' => $oldData, 'new' => $data],
+                'remarks' => 'User updated'
+            ]);
+            
+            return redirect()->route('dashboard_list.user')->with('success', 'User updated successfully.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Failed to update user: ' . $e->getMessage())->withInput();
+        }
+    }
 
-        return redirect()->route('dashboard_list.user',['message' => 'User Deleted Successfully']);
+    public function submitDeleteForm(Request $request)
+    {
+        try {
+            $user = $this->service->getById($request->route('id'));
+            $this->service->submitDeleteForm($request->route('id'));
+            
+            // Audit Log
+            AuditLog::create([
+                'auditable_id' => $user->id,
+                'auditable_type' => 'App\\Models\\User',
+                'user_id' => auth()->id(),
+                'action' => 'deleted',
+                'changes' => $user->toArray(),
+                'remarks' => 'User deleted'
+            ]);
+            
+            return redirect()->route('dashboard_list.user')->with('success', 'User deleted successfully.');
+        } catch (\Exception $e) {
+            return redirect()->route('dashboard_list.user')->with('error', 'Failed to delete user: ' . $e->getMessage());
+        }
+    }
+
+    public function getIndexData(Request $request)
+    {
+        return response()->json($this->service->getIndexData($request->all()));
+    }
+
+    public function getDetailData(Request $request)
+    {
+        return response()->json($this->service->getDetailData($request->id));
     }
 }

@@ -87,9 +87,15 @@
                     </a>
                 </li>
                 <li>
-                    <a href="{{ route('dashboard_leave.leave_request') }}"
+                    <a href="{{ route('dashboard_leave.index') }}"
                        class="block rounded-lg text-gray-600 hover:bg-blue-50 hover:text-blue-600 px-3 py-2 transition">
                         📃 Leave Requests
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('dashboard_leave.dashboard') }}"
+                       class="block rounded-lg text-gray-600 hover:bg-blue-50 hover:text-blue-600 px-3 py-2 transition">
+                        📊 Leave Dashboard
                     </a>
                 </li>
             </ul>
@@ -111,17 +117,23 @@
                     </a>
                 </li>
                 <li>
+                    <a href="{{ route('dashboard_salary.dashboard') }}"
+                       class="block rounded-lg text-gray-600 hover:bg-blue-50 hover:text-blue-600 px-3 py-2 transition">
+                        📊 Salary Dashboard
+                    </a>
+                </li>
+                <li>
                     <a href="{{ route('dashboard_payroll.index') }}"
                        class="block rounded-lg text-gray-600 hover:bg-blue-50 hover:text-blue-600 px-3 py-2 transition">
                         📃 View Payroll
                     </a>
                 </li>
-                {{-- <li>
-                    <a href="{{ route('dashboard_payroll.edit') }}"
+                <li>
+                    <a href="{{ route('dashboard_payroll.dashboard') }}"
                        class="block rounded-lg text-gray-600 hover:bg-blue-50 hover:text-blue-600 px-3 py-2 transition">
-                        📃 Edit Payroll
+                        📊 Payroll Dashboard
                     </a>
-                </li> --}}
+                </li>
                 <li>
                     <a href="{{ route('dashboard_payroll.generateForm') }}"
                        class="block rounded-lg text-gray-600 hover:bg-blue-50 hover:text-blue-600 px-3 py-2 transition">
@@ -135,27 +147,33 @@
             <span class="block text-lg font-semibold text-gray-800 px-4 py-3 border-b border-gray-200">Inventory</span>
             <ul class="pl-4 py-2 space-y-1">
                 <li>
-                    <a href="{{ route('category.create') }}"
+                    <a href="{{ route('category.v1.new') }}"
                        class="block rounded-lg text-gray-600 hover:bg-blue-50 hover:text-blue-600 px-3 py-2 transition">
-                        ➕ Create Categories
+                        ➕ Add Category
                     </a>
                 </li>
                 <li>
-                    <a href="{{ route('category.index') }}"
+                    <a href="{{ route('category.v1.index') }}"
                        class="block rounded-lg text-gray-600 hover:bg-blue-50 hover:text-blue-600 px-3 py-2 transition">
                         📃 View Categories
                     </a>
                 </li>
                 <li>
-                    <a href="{{ route('inventory.create') }}"
+                    <a href="{{ route('inventory.v1.new') }}"
                        class="block rounded-lg text-gray-600 hover:bg-blue-50 hover:text-blue-600 px-3 py-2 transition">
-                        ➕ Create Inventory
+                        ➕ Add Inventory Item
                     </a>
                 </li>
                 <li>
                     <a href="{{ route('inventory.index') }}"
                        class="block rounded-lg text-gray-600 hover:bg-blue-50 hover:text-blue-600 px-3 py-2 transition">
                         📃 View Inventory
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('inventory.dashboard') }}"
+                       class="block rounded-lg text-gray-600 hover:bg-blue-50 hover:text-blue-600 px-3 py-2 transition">
+                        📊 Inventory Dashboard
                     </a>
                 </li>
                 

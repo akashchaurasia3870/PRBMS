@@ -36,50 +36,43 @@ Route::get('logs', [\Rap2hpoutre\LaravelLogViewer\LogViewerController::class, 'i
 Route::prefix('dashboard')->group(function(){
     Route::prefix('users')->group(function(){
         Route::controller(UserController::class)->group(function(){
-            Route::get('/', 'index')->name('dashboard_list.user');
+            // View routes
+            Route::get('/', 'getIndexView')->name('dashboard_list.user');
+            Route::get('/details/{id}', 'getDetailView')->name('dashboard_details.user');
+            Route::get('/create', 'getCreateView')->name('dashboard_create.user');
+            Route::get('/edit/{id}', 'getEditView')->name('dashboard_edit.user');
 
-            Route::get('/details/{id}','get_user_details')->name('dashboard_details.user');
+            // Form submission routes
+            Route::post('/create', 'submitCreateForm')->name('dashboard_store.user');
+            Route::put('/update', 'submitUpdateForm')->name('dashboard_update.user');
+            Route::delete('/destroy', 'submitDeleteForm')->name('dashboard_destroy.user');
 
-            Route::get('/create',function(){ return view('modules.users.create-user');})->name('dashboard_create.user');
-
-            Route::post('/create','create')->name('dashboard_store.user');
-
-            Route::get('/edit/{id}','detail')->name('dashboard_edit.user');
-
-            Route::put('/update','update')->name('dashboard_update.user');
-
-            Route::delete('/destroy',  'destroy')->name('dashboard_destroy.user');
-
-            Route::post('/update_contact','update_contact')->name('dashboard_contact_update.user');
-
-            Route::post('/update_doucuments','update_documents')->name('dashboard_doc_update.user')->middleware('file.upload');
-
-
+            // Data API routes
+            Route::post('/data/index', 'getIndexData')->name('dashboard_data.user');
+            Route::post('/data/show', 'getDetailData')->name('dashboard_detail_data.user');
         });
     });
     Route::prefix('roles')->group(function(){
         Route::controller(RoleController::class)->group(function(){
+            // View routes
+            Route::get('/', 'getIndexView')->name('dashboard_list.roles');
+            Route::get('/create', 'getCreateView')->name('dashboard_create.roles');
+            Route::get('/edit/{id}', 'getEditView')->name('dashboard_edit.roles');
+            Route::get('/show/{id}', 'getDetailView')->name('dashboard_show.roles');
 
-            Route::get('/', 'index')->name('dashboard_list.roles');
+            // Form submission routes
+            Route::post('/create', 'submitCreateForm')->name('dashboard_store.roles');
+            Route::put('/update', 'submitUpdateForm')->name('dashboard_update.roles');
+            Route::delete('/destroy', 'submitDeleteForm')->name('dashboard_destroy.roles');
 
-            // Route::get('/details/{id}',function(){ return view('modules.roles.view-user-details');})->name('dashboard_details.roles');
+            // User management routes (legacy)
+            Route::get('/add_users/{id}/{lvl}/{role_name}', 'add_users_list')->name('dashboard_add_users.roles');
+            Route::post('/add_users_role', 'add_users_data')->name('dashboard_add_users_roles.roles');
+            Route::post('/destroy_user_role', 'destroy_user_role')->name('dashboard_remove_users_roles.roles');
 
-            Route::get('/create',function(){ return view('modules.roles.create-roles');})->name('dashboard_create.roles');
-
-            Route::post('/create','create')->name('dashboard_store.roles');
-
-            Route::get('/edit/{id}','detail')->name('dashboard_edit.roles');
-
-            Route::get('/add_users/{id}/{lvl}/{role_name}','add_users_list')->name('dashboard_add_users.roles');
-
-            Route::post('/add_users_role','add_users_data')->name('dashboard_add_users_roles.roles');
-
-            Route::put('/update','update')->name('dashboard_update.roles');
-
-            Route::delete('/destroy',  'destroy')->name('dashboard_destroy.roles');
-
-            Route::post('/destroy_user_role',  'destroy_user_role')->name('dashboard_remove_users_roles.roles');
-
+            // Data API routes
+            Route::post('/data/index', 'getIndexData')->name('dashboard_data.roles');
+            Route::post('/data/show', 'getDetailData')->name('dashboard_detail_data.roles');
         });
     });
     Route::prefix('attendance')->group(function(){
@@ -105,7 +98,8 @@ Route::prefix('dashboard')->group(function(){
     });
     Route::prefix('leave')->group(function(){
         Route::controller(LeaveController::class)->group(function(){
-            Route::get('/', 'index')->name('dashboard_leave.leave_request');
+            Route::get('/', 'index')->name('dashboard_leave.index');
+            Route::get('/dashboard', 'dashboard')->name('dashboard_leave.dashboard');
 
             Route::get('/apply','leave_request_view')->name('dashboard_leave.leave_request_view');
             
@@ -115,7 +109,7 @@ Route::prefix('dashboard')->group(function(){
             
             Route::post('/approve_leave_status/{id}','approve_leave_status')->name('dashboard_leave.approve_leave_status');
             
-            Route::post('/reject_leave_status/{id}','reject_leave_status')->name('dashboard_leave.reject_leave_status');
+            Route::post('/reject/{id}','reject_leave_status')->name('dashboard_leave.reject_leave_status');
             
             Route::put('/edit/{id}','edit_leave_info')->name('dashboard_leave.edit_leave_info');
 
@@ -125,6 +119,8 @@ Route::prefix('dashboard')->group(function(){
     Route::prefix('salary-structure')->group(function(){
         Route::controller(SalaryStructureController::class)->group(function(){
             Route::get('/', 'index')->name('dashboard_salary.index');
+            
+            Route::get('/dashboard', 'dashboard')->name('dashboard_salary.dashboard');
 
             Route::get('/create','create')->name('dashboard_salary.create');
             
@@ -142,6 +138,9 @@ Route::prefix('dashboard')->group(function(){
 
             // List all payroll receipts
             Route::get('/', 'index')->name('dashboard_payroll.index');
+            
+            // Dashboard
+            Route::get('/dashboard', 'dashboard')->name('dashboard_payroll.dashboard');
 
             // Show payroll receipt details
             Route::get('/{id}', 'show')->name('dashboard_payroll.show');
@@ -169,11 +168,49 @@ Route::prefix('dashboard')->group(function(){
 
         });
     });
+    // Inventory routes following the same pattern as expenses
+    Route::prefix('inventory')->group(function () {
+        // Dashboard and audit logs
+        Route::get('/dashboard', [InventoryController::class, 'getDashboard'])->name('inventory.dashboard');
+        Route::get('/audit-logs', [InventoryController::class, 'getAuditLogs'])->name('inventory.audit.logs');
+        
+        // New routes following expense pattern
+        Route::get('/v1/new', [InventoryController::class, 'getCreateView'])->name('inventory.v1.new');
+        
+        // Stock operations
+        Route::post('/{id}/stock-in', [InventoryController::class, 'stockIn'])->name('inventory.stockIn');
+        Route::post('/{id}/stock-out', [InventoryController::class, 'stockOut'])->name('inventory.stockOut');
+        Route::get('/{id}/logs', [InventoryController::class, 'viewLogs'])->name('inventory.logs');
+    });
+    
+    // Category audit logs
+    Route::get('/category/audit-logs', [CategoryController::class, 'getAuditLogs'])->name('category.audit.logs');
+    
+    // Legacy resource routes for backward compatibility  
     Route::resource('inventory', InventoryController::class);
-    Route::post('inventory/{inventory}/stock-in', [InventoryController::class, 'stockIn'])->name('inventory.stockIn');
-    Route::post('inventory/{inventory}/stock-out', [InventoryController::class, 'stockOut'])->name('inventory.stockOut');
-    Route::get('inventory/{inventory}/logs', [InventoryController::class, 'viewLogs'])->name('inventory.logs');
 
+    // Category routes following the same pattern as expense types
+    Route::prefix('category')->group(function () {
+        // Audit logs
+        Route::get('/audit-logs', [CategoryController::class, 'getAuditLogs'])->name('category.audit.logs');
+        
+        // api to get views 
+        Route::get('/v1/index', [CategoryController::class, 'getIndexView'])->name('category.v1.index');
+        Route::get('/v1/new', [CategoryController::class, 'getCreateView'])->name('category.v1.new');
+        Route::get('/v1/edit/{id}', [CategoryController::class, 'getEditView'])->name('category.v1.edit');
+        Route::get('/v1/show/{id}', [CategoryController::class, 'getDetailView'])->name('category.v1.show');
+
+        // api to submit forms 
+        Route::post('/v2/new', [CategoryController::class, 'submitCreateForm'])->name('category.v2.new');
+        Route::post('/v2/edit/{id}', [CategoryController::class, 'submitUpdateForm'])->name('category.v2.edit');
+        Route::post('/v2/delete/{id}', [CategoryController::class, 'submitDeleteForm'])->name('category.v2.delete');
+
+        // api to get data 
+        Route::post('/v3/index', [CategoryController::class, 'getIndexData'])->name('category.v3.index');
+        Route::post('/v3/show', [CategoryController::class, 'getDetailData'])->name('category.v3.show');
+    });
+    
+    // Legacy resource routes for backward compatibility
     Route::resource('category', CategoryController::class);
 
     // All logs, with optional query params for filtering:

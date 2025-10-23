@@ -10,7 +10,7 @@
         @endif
         <form action="{{ route('inventory.store') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
             @csrf
-            @include('modules.inventory.form', ['mode' => 'create'])
+            @include('modules.inventory.form', ['mode' => 'create', 'categories' => $data])
             <div class="flex gap-2 mt-6">
                 <button type="submit" class="flex items-center space-x-1 text-white bg-blue-600 hover:bg-blue-700 border border-blue-100 rounded-lg px-4 py-2 transition font-semibold">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" /></svg>

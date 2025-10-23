@@ -12,6 +12,9 @@ class Role extends Model
         'role_name',
         'role_desc',
         'role_lvl',
+        'deleted',
+        'deleted_by',
+        'deleted_at'
     ];
 
     public function auditLogs()

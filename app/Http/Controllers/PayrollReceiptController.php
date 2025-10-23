@@ -4,43 +4,30 @@ namespace App\Http\Controllers;
 
 use App\Models\PayrollReceipt;
 use App\Models\User;
+use App\Services\PayrollService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class PayrollReceiptController extends Controller
 {
-    // List all payroll receipts with optional filters
+    protected PayrollService $service;
+
+    public function __construct(PayrollService $service)
+    {
+        $this->service = $service;
+    }
     public function index(Request $request)
     {
-        $month  = $request->input('month');
-        $year   = $request->input('year');
-        $status = $request->input('status');
-        $userId = $request->input('user_id');
-        
-        // Fallback to current month and year if not provided
-        $month = !empty($month) ? $month : Carbon::now()->format('m');
-        $year  = !empty($year)  ? $year  : Carbon::now()->format('Y');
-
-        $receipts = DB::table('payroll_receipts as pr')
-            ->join('users as u', 'u.id', '=', 'pr.user_id')
-            ->select('pr.*', 'u.name')
-            ->where('pr.deleted', 0);
-
-        if ($month)  $receipts->where('pr.month', $month);
-        if ($year)   $receipts->where('pr.year', $year);
-        if ($status) $receipts->where('pr.status', $status);
-        if ($userId) $receipts->where('pr.user_id', $userId);
-        if ($request->filled('search')) {
-            $receipts->where('name', 'like', '%' . $request->search . '%');
-        }
-
-
-        $receipts = $receipts->orderByDesc('pr.year')
-            ->orderByDesc('pr.month')
-            ->paginate(10)->appends($request->except('page'));
-
+        $filters = $request->only(['search', 'status', 'month', 'year', 'user_id']);
+        $receipts = $this->service->getIndexData($filters);
         return view('modules.payroll_receipt.index', compact('receipts'));
+    }
+    
+    public function dashboard()
+    {
+        $dashboardData = $this->service->getDashboardData();
+        return view('modules.payroll_receipt.dashboard', $dashboardData);
     }
 
     // Show a single payroll receipt

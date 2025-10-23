@@ -3,15 +3,18 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Attendance;
-use App\Models\User;
-use Illuminate\Support\Facades\DB;
+use App\Services\AttendanceService;
 
 class AttendanceController extends Controller
 {
+    protected AttendanceService $service;
+
+    public function __construct(AttendanceService $service)
+    {
+        $this->service = $service;
+    }
     public function index(Request $request)
     {
-        // index
         $month = $request->month ?? date('m');
         $year = $request->year ?? date('Y');
         $search = $request->search;
@@ -19,7 +22,7 @@ class AttendanceController extends Controller
             $search = null;
         }
 
-        $query = DB::table('attendance_view')
+        $query = \Illuminate\Support\Facades\DB::table('attendance_view')
             ->selectRaw('id, name, month, total_days as totalWorkingDays, present_count as presentDays, (total_days - present_count) as absentDays')
             ->where('month', $month)
             ->where('year', $year);
@@ -38,21 +41,19 @@ class AttendanceController extends Controller
 
     public function get_user_list()
     {
-        $users = User::where('deleted', 0)->paginate(10);
-        // dd($users);
-        return view('modules.attendance.mark-users-attendance',['users'=>$users]);
+        $users = \App\Models\User::where('deleted', 0)->paginate(10);
+        return view('modules.attendance.mark-users-attendance', ['users' => $users]);
     }
 
     public function get_user_attendance_details(Request $request)
     {
-        // show 
         $id = $request->id;
         $search = $request->search;
         if (empty($search)) {
             $search = null;
         }
 
-        $query = DB::table('attendance_view')
+        $query = \Illuminate\Support\Facades\DB::table('attendance_view')
             ->selectRaw('id, name, month,year, total_days as totalWorkingDays, present_count as presentDays, (total_days - present_count) as absentDays')
             ->where('id',$id);
 
@@ -69,22 +70,11 @@ class AttendanceController extends Controller
             'status' => 'required|string|in:present,absent',
         ]);
 
-        $attendance = Attendance::where('user_id', $validated['user_id'])
-            ->where('date', $validated['date'])
-            ->first();
-
-        if ($attendance) {
-            $attendance->status = $validated['status'];
-            $attendance->save();
-            $message = 'Attendance updated successfully.';
-        } else {
-            $attendance = Attendance::create($validated);
-            $message = 'Attendance marked successfully.';
-        }
-
-        $users = User::where('deleted', 0)->paginate(10);
-        // dd($users);
-        return view('modules.attendance.mark-users-attendance',['users'=>$users,'message'=>$message]);
+        $this->service->markAttendance($validated);
+        $users = \App\Models\User::where('deleted', 0)->paginate(10);
+        $message = 'Attendance marked successfully.';
+        
+        return view('modules.attendance.mark-users-attendance', ['users' => $users, 'message' => $message]);
     }
     public function mark_all_attendance(Request $request)
     {
@@ -93,30 +83,11 @@ class AttendanceController extends Controller
             'status' => 'required|string|in:present,absent',
         ]);
 
-        $users = User::where('deleted', 0)->get();
-        foreach ($users as $user) {
-            $attendance = Attendance::where('user_id', $user->id)
-                ->where('date', $validated['date'])
-                ->first();
-
-            if ($attendance) {
-                $attendance->status = $validated['status'];
-                $attendance->save();
-            } else {
-                Attendance::create([
-                    'user_id' => $user->id,
-                    'date' => $validated['date'],
-                    'status' => $validated['status'],
-                ]);
-            }
-        }
-
-        $usersPaginated = User::where('deleted', 0)->paginate(10);
+        $this->service->markAllAttendance($validated);
+        $users = \App\Models\User::where('deleted', 0)->paginate(10);
         $message = 'Attendance marked/updated for all users successfully.';
-        return view('modules.attendance.mark-users-attendance', [
-            'users' => $usersPaginated,
-            'message' => $message
-        ]);
+        
+        return view('modules.attendance.mark-users-attendance', ['users' => $users, 'message' => $message]);
     }
 
     public function store(Request $request)
@@ -127,23 +98,22 @@ class AttendanceController extends Controller
             'status' => 'required|string',
         ]);
 
-        $attendance = \App\Models\Attendance::create($validated);
-
+        $attendance = $this->service->store($validated);
         return response()->json($attendance, 201);
     }
 
     public function user_attendance_details(Request $request)
     {
         $id = $request->id;
-        $data = \App\Models\Attendance::findOrFail($id);
-        return view('modules.attendance.edit-user-attendance',['data'=>$data]);        
+        $data = $this->service->getById($id);
+        return view('modules.attendance.edit-user-attendance', ['data' => $data]);        
     }
 
     public function update_user_attendance_details(Request $request)
     {
         $id = $request->id;
-        $data = \App\Models\Attendance::findOrFail($id);
-        return view('modules.attendance.edit-user-attendance',['data'=>$data]);        
+        $data = $this->service->getById($id);
+        return view('modules.attendance.edit-user-attendance', ['data' => $data]);        
     }
 
     // public function update(Request $request)

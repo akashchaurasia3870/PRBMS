@@ -19,41 +19,44 @@
                 </div>
 
                 <!-- Stats Cards -->
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-6">
-                        <div class="flex items-center">
-                            <div class="text-blue-600 text-3xl mr-4">💰</div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-gradient-to-r from-red-500 to-red-600 text-white p-6 rounded-lg shadow-lg">
+                        <div class="flex items-center justify-between">
                             <div>
-                                <p class="text-sm text-blue-600 font-medium">Total Expenses</p>
-                                <p class="text-2xl font-bold text-blue-800">${{ number_format($data['total_expenses'] ?? 0, 2) }}</p>
+                                <p class="text-red-100 text-sm font-medium">Total Expenses</p>
+                                <p class="text-3xl font-bold">${{ number_format($data['total_expenses'] ?? 0, 2) }}</p>
                             </div>
+                            <div class="text-4xl opacity-80">💸</div>
                         </div>
                     </div>
-                    <div class="bg-green-50 border border-green-200 rounded-lg p-6">
-                        <div class="flex items-center">
-                            <div class="text-green-600 text-3xl mr-4">📊</div>
+                    
+                    <div class="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-6 rounded-lg shadow-lg">
+                        <div class="flex items-center justify-between">
                             <div>
-                                <p class="text-sm text-green-600 font-medium">Total Records</p>
-                                <p class="text-2xl font-bold text-green-800">{{ $data['expense_count'] ?? 0 }}</p>
+                                <p class="text-blue-100 text-sm font-medium">Total Records</p>
+                                <p class="text-3xl font-bold">{{ number_format($data['expense_count'] ?? 0) }}</p>
                             </div>
+                            <div class="text-4xl opacity-80">📊</div>
                         </div>
                     </div>
-                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
-                        <div class="flex items-center">
-                            <div class="text-yellow-600 text-3xl mr-4">📈</div>
+                    
+                    <div class="bg-gradient-to-r from-orange-500 to-orange-600 text-white p-6 rounded-lg shadow-lg">
+                        <div class="flex items-center justify-between">
                             <div>
-                                <p class="text-sm text-yellow-600 font-medium">This Month</p>
-                                <p class="text-2xl font-bold text-yellow-800">${{ number_format(collect($data['expenses_by_type'] ?? [])->sum('total_amount'), 2) }}</p>
+                                <p class="text-orange-100 text-sm font-medium">This Month</p>
+                                <p class="text-3xl font-bold">${{ number_format($data['monthly_total'] ?? 0, 2) }}</p>
                             </div>
+                            <div class="text-4xl opacity-80">📈</div>
                         </div>
                     </div>
-                    <div class="bg-purple-50 border border-purple-200 rounded-lg p-6">
-                        <div class="flex items-center">
-                            <div class="text-purple-600 text-3xl mr-4">🏷️</div>
+                    
+                    <div class="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-6 rounded-lg shadow-lg">
+                        <div class="flex items-center justify-between">
                             <div>
-                                <p class="text-sm text-purple-600 font-medium">Categories</p>
-                                <p class="text-2xl font-bold text-purple-800">{{ count($data['expenses_by_type'] ?? []) }}</p>
+                                <p class="text-purple-100 text-sm font-medium">Expense Types</p>
+                                <p class="text-3xl font-bold">{{ count($data['expenses_by_type'] ?? []) }}</p>
                             </div>
+                            <div class="text-4xl opacity-80">🏷️</div>
                         </div>
                     </div>
                 </div>

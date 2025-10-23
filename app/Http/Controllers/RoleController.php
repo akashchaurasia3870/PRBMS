@@ -2,93 +2,219 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Services\RoleService;
+use App\Interfaces\BaseControllerInterface;
+use App\Models\AuditLog;
 use App\Models\User;
-use App\Models\Role;
 use App\Models\UserRoles;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Validator;
-use App\Http\Controllers\UserController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-
-class RoleController extends Controller
+class RoleController extends Controller implements BaseControllerInterface
 {
-    public function index()
+    protected RoleService $service;
+
+    public function __construct(RoleService $service)
     {
-        $data = Role::where('deleted', '!=', 1)->paginate(10);
-        return view('modules.roles.list-roles',['data'=>$data]);
+        $this->service = $service;
     }
-
-    public function detail(Request $request)
+    public function getIndexView(Request $request)
     {
-        $data = Role::find($request->id);
-        if (!$data) {
-            return response()->json(['error' => 'Role not found'], 404);
-        }
-        return view('modules.roles.edit-roles',['data'=>$data]);
-
-    }
-
-    public function create(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'role_name' => 'required|string|min:5|max:50',
-            'role_desc' => 'required|string|min:5|max:255',
-            'role_lvl' => 'required|integer|min:0|max:3',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
-
-        $data = Role::create([
-            'role_name' => $request->role_name,
-            'role_desc' => $request->role_desc,
-            'role_lvl' => $request->role_lvl,
-        ]);
-
-        return redirect()->route('dashboard_edit.roles', $data->id)->with('success', 'Role Created successfully!');
-    }
-
-    public function update(Request $request)
-    {
-        $data = Role::find($request->id);
-
-        $validator = Validator::make($request->all(), [
-            'role_name' => 'required|string|min:5|max:50',
-            'role_desc' => 'required|string|min:5|max:255',
-            'role_lvl' => 'required|integer|min:0|max:3',
-        ]);
-
-        if ($validator->fails()) {
-            return redirect()->route('dashboard_edit.roles', $request->id)->withErrors($validator)
-            ->withInput();
+        // Handle export
+        if ($request->has('export') && $request->export === 'csv') {
+            return $this->exportToCsv($request->all());
         }
         
-        $data->update([
-            'role_name' => $request->role_name,
-            'role_desc' => $request->role_desc,
-            'role_lvl' => $request->role_lvl,
-        ]);
-
-        return redirect()->route('dashboard_edit.roles', $request->id)->with('success', 'Role updated successfully!');
-
+        // Handle bulk actions
+        if ($request->has('bulk_delete')) {
+            return $this->bulkDelete($request->bulk_delete);
+        }
+        
+        if ($request->has('export_selected')) {
+            return $this->exportSelected($request->export_selected);
+        }
+        
+        $data = $this->service->getIndexView($request->all());
+        return view('modules.roles.index', compact('data'));
+    }
+    
+    private function exportToCsv($filters = [])
+    {
+        $roles = $this->service->getAllForExport($filters);
+        
+        $filename = 'roles_' . date('Y-m-d_H-i-s') . '.csv';
+        
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ];
+        
+        $callback = function() use ($roles) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, ['ID', 'Role Name', 'Description', 'Level', 'Created At']);
+            
+            foreach ($roles as $role) {
+                fputcsv($file, [
+                    $role->id,
+                    $role->role_name,
+                    $role->role_desc,
+                    $role->role_lvl,
+                    $role->created_at
+                ]);
+            }
+            fclose($file);
+        };
+        
+        return response()->stream($callback, 200, $headers);
+    }
+    
+    private function bulkDelete($ids)
+    {
+        try {
+            $idArray = explode(',', $ids);
+            $this->service->bulkDelete($idArray);
+            return redirect()->route('dashboard_list.roles')->with('success', count($idArray) . ' roles deleted successfully.');
+        } catch (\Exception $e) {
+            return redirect()->route('dashboard_list.roles')->with('error', 'Failed to delete roles: ' . $e->getMessage());
+        }
+    }
+    
+    private function exportSelected($ids)
+    {
+        $idArray = explode(',', $ids);
+        $roles = $this->service->getByIds($idArray);
+        
+        $filename = 'selected_roles_' . date('Y-m-d_H-i-s') . '.csv';
+        
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ];
+        
+        $callback = function() use ($roles) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, ['ID', 'Role Name', 'Description', 'Level', 'Created At']);
+            
+            foreach ($roles as $role) {
+                fputcsv($file, [
+                    $role->id,
+                    $role->role_name,
+                    $role->role_desc,
+                    $role->role_lvl,
+                    $role->created_at
+                ]);
+            }
+            fclose($file);
+        };
+        
+        return response()->stream($callback, 200, $headers);
     }
 
-    public function destroy(Request $request)
+    public function getCreateView(Request $request)
     {
-        $data = Role::find($request->id);
-        if (!$data || $data->deleted_at) {
-            redirect()->route('dashboard_list.roles',['error' => 'Role not found']);
+        $data = $this->service->getCreateView($request->all());
+        return view('modules.roles.new', compact('data'));
+    }
+
+    public function getEditView(Request $request)
+    {
+        $data = $this->service->getEditView($request->route('id'));
+        return view('modules.roles.edit', compact('data'));
+    }
+
+    public function getDetailView(Request $request)
+    {
+        $data = $this->service->getDetailView($request->route('id'));
+        return view('modules.roles.show', compact('data'));
+    }
+
+    public function submitCreateForm(Request $request)
+    {
+        $request->validate([
+            'role_name' => 'required|string|min:3|max:50|unique:roles,role_name',
+            'role_desc' => 'required|string|min:5|max:255',
+            'role_lvl' => 'required|integer|min:0|max:3',
+        ]);
+        
+        try {
+            $data = $request->all();
+            $role = $this->service->submitCreateForm($data);
+            
+            // Audit Log
+            AuditLog::create([
+                'auditable_id' => $role->id,
+                'auditable_type' => 'App\\Models\\Role',
+                'user_id' => auth()->id(),
+                'action' => 'created',
+                'changes' => $data,
+                'remarks' => 'Role created'
+            ]);
+            
+            return redirect()->route('dashboard_list.roles')->with('success', 'Role created successfully.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Failed to create role: ' . $e->getMessage())->withInput();
         }
+    }
 
-        $data->deleted_at = now();
-        $data->deleted = true;
-        $data->deleted_by = Auth::user()->id;
-        $data->save();
+    public function submitUpdateForm(Request $request)
+    {
+        $request->validate([
+            'role_name' => 'required|string|min:3|max:50|unique:roles,role_name,' . $request->route('id'),
+            'role_desc' => 'required|string|min:5|max:255',
+            'role_lvl' => 'required|integer|min:0|max:3',
+        ]);
+        
+        try {
+            $data = $request->all();
+            $oldData = $this->service->getById($request->route('id'))->toArray();
+            $role = $this->service->submitUpdateForm($request->route('id'), $data);
+            
+            // Audit Log
+            AuditLog::create([
+                'auditable_id' => $role->id,
+                'auditable_type' => 'App\\Models\\Role',
+                'user_id' => auth()->id(),
+                'action' => 'updated',
+                'changes' => ['old' => $oldData, 'new' => $data],
+                'remarks' => 'Role updated'
+            ]);
+            
+            return redirect()->route('dashboard_list.roles')->with('success', 'Role updated successfully.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Failed to update role: ' . $e->getMessage())->withInput();
+        }
+    }
 
-        return redirect()->route('dashboard_list.roles',['message' => 'Role Deleted Successfully']);
+    public function submitDeleteForm(Request $request)
+    {
+        try {
+            $role = $this->service->getById($request->route('id'));
+            $this->service->submitDeleteForm($request->route('id'));
+            
+            // Audit Log
+            AuditLog::create([
+                'auditable_id' => $role->id,
+                'auditable_type' => 'App\\Models\\Role',
+                'user_id' => auth()->id(),
+                'action' => 'deleted',
+                'changes' => $role->toArray(),
+                'remarks' => 'Role deleted'
+            ]);
+            
+            return redirect()->route('dashboard_list.roles')->with('success', 'Role deleted successfully.');
+        } catch (\Exception $e) {
+            return redirect()->route('dashboard_list.roles')->with('error', 'Failed to delete role: ' . $e->getMessage());
+        }
+    }
+
+    public function getIndexData(Request $request)
+    {
+        return response()->json($this->service->getIndexData($request->all()));
+    }
+
+    public function getDetailData(Request $request)
+    {
+        return response()->json($this->service->getDetailData($request->id));
     }
 
     public function add_users_list(Request $request){

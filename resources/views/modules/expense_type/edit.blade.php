@@ -4,22 +4,22 @@
             <div class="bg-white shadow-xl rounded-lg overflow-y-auto">
                 <!-- Header -->
                 <div class="bg-gradient-to-r from-yellow-500 to-yellow-600 px-6 py-8">
-                    <div class="flex items-center">
+                    <div class="flex items-center mb-4">
                         <div class="text-4xl text-white mr-4">✏️</div>
                         <div>
                             <h1 class="text-2xl sm:text-3xl font-bold text-white">Edit Expense Type</h1>
-                            <p class="text-yellow-100 mt-1">Update "{{ $data->type }}" category details</p>
+                            <p class="text-yellow-100 mt-1">Update expense type #{{ $data->id }} details</p>
                         </div>
                     </div>
                 </div>
-
+                
                 <!-- Alert -->
-                {{-- <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4">
+                <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4">
                     <div class="flex">
                         <div class="text-yellow-400 mr-3">⚠️</div>
-                        <p class="text-yellow-800 text-sm">Changes will affect all expenses using this type</p>
+                        <p class="text-yellow-800 text-sm">Editing expense type created on {{ \Carbon\Carbon::parse($data->created_at)->format('M d, Y') }}</p>
                     </div>
-                </div> --}}
+                </div>
 
                 <!-- Form -->
                 <div class="p-6 sm:p-8">

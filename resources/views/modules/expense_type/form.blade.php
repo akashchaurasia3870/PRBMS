@@ -66,11 +66,66 @@
             ← Cancel
         </a>
         <button type="submit" 
-                class="bg-blue-500 hover:bg-blue-600 text-white font-medium py-3 px-8 rounded-lg transition duration-200">
-            {{ isset($expenseType) ? 'Update Type' : 'Save Type' }}
+                class="bg-blue-500 hover:bg-blue-600 text-white font-medium py-3 px-8 rounded-lg transition duration-200 flex items-center">
+            <span class="mr-2">💾</span>
+            {{ isset($expenseType) ? 'Update Expense Type' : 'Save Expense Type' }}
         </button>
     </div>
 </div>
+
+<script>
+let currentStep = 0;
+const totalSteps = 2;
+const steps = ['Ready to start', 'Expense Type', 'Description', 'Complete'];
+
+function updateProgress() {
+    const progress = (currentStep / totalSteps) * 100;
+    const progressBar = document.getElementById('progressBar');
+    const progressText = document.getElementById('progressText');
+    if (progressBar) {
+        progressBar.style.width = progress + '%';
+    }
+    if (progressText) {
+        progressText.textContent = `Step ${currentStep} of ${totalSteps}: ${steps[currentStep]}`;
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const typeInput = document.getElementById('type_input');
+    const descriptionInput = document.querySelector('textarea[name="description"]');
+    const submitBtn = document.querySelector('button[type="submit"]');
+    
+    updateProgress();
+    
+    if (typeInput) {
+        typeInput.addEventListener('input', function() {
+            if (this.value.trim()) {
+                currentStep = Math.max(currentStep, 1);
+                updateProgress();
+                if (descriptionInput) descriptionInput.focus();
+            }
+        });
+    }
+    
+    if (descriptionInput) {
+        descriptionInput.addEventListener('input', function() {
+            if (this.value.trim()) {
+                currentStep = Math.max(currentStep, 2);
+                updateProgress();
+            }
+        });
+    }
+    
+    if (submitBtn) {
+        submitBtn.addEventListener('click', function() {
+            currentStep = 2;
+            updateProgress();
+        });
+    }
+    
+    if (typeInput) typeInput.focus();
+});
+</script>
 
 <script>
 function handleTypeSelection() {

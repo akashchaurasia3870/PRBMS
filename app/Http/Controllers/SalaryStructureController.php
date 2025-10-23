@@ -4,31 +4,48 @@ namespace App\Http\Controllers;
 
 use App\Models\SalaryStructure;
 use App\Models\User;
+use App\Services\SalaryStructureService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class SalaryStructureController extends Controller
 {
-    public function index()
+    protected SalaryStructureService $service;
+
+    public function __construct(SalaryStructureService $service)
     {
-        $structures = SalaryStructure::with('user')->where('deleted', '0')->paginate(10);
+        $this->service = $service;
+    }
+    public function index(Request $request)
+    {
+        $filters = $request->only(['search', 'salary_min', 'salary_max']);
+        $structures = $this->service->getIndexData($filters);
         return view('modules.salary_structure.index', compact('structures'));
+    }
+    
+    public function dashboard()
+    {
+        $dashboardData = $this->service->getDashboardData();
+        return view('modules.salary_structure.dashboard', $dashboardData);
     }
 
     public function create()
     {
-        $users = User::all();
+        $users = $this->service->getUsers();
         return view('modules.salary_structure.create', compact('users'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'user_id' => 'required',
-            'basic_salary' => 'required|numeric',
+            'user_id' => 'required|exists:users,id',
+            'basic_salary' => 'required|numeric|min:0',
+            'hra' => 'nullable|numeric|min:0',
+            'da' => 'nullable|numeric|min:0',
+            'other_allowance' => 'nullable|numeric|min:0',
         ]);
 
-        SalaryStructure::create($request->all());
+        $this->service->store($request->all());
 
         return redirect()->route('dashboard_salary.index')
                          ->with('success', 'Salary structure created successfully.');
@@ -59,15 +76,15 @@ class SalaryStructureController extends Controller
     public function update(Request $request)
     {
         $request->validate([
-            'basic_salary' => 'required|numeric',
+            'basic_salary' => 'required|numeric|min:0',
+            'hra' => 'nullable|numeric|min:0',
+            'da' => 'nullable|numeric|min:0',
+            'other_allowance' => 'nullable|numeric|min:0',
         ]);
 
-        SalaryStructure::where('id', $request->id)->update([
-            'basic_salary'     => $request->basic_salary,
-            'hra'              => $request->hra,
-            'da'               => $request->da,
-            'other_allowance'  => $request->other_allowance,
-        ]);
+        $this->service->update($request->id, $request->only([
+            'basic_salary', 'hra', 'da', 'other_allowance'
+        ]));
 
         return redirect()->route('dashboard_salary.index')
                          ->with('success', 'Salary structure updated successfully.');
@@ -75,7 +92,7 @@ class SalaryStructureController extends Controller
 
     public function delete(Request $req)
     {
-        SalaryStructure::where('id', $req->id)->update(['deleted' => '1']);
+        $this->service->delete($req->id);
 
         return redirect()->route('dashboard_salary.index')
                          ->with('success', 'Salary structure deleted.');

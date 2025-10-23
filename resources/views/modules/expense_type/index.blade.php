@@ -189,7 +189,7 @@
                                 Showing {{ $data->firstItem() }} to {{ $data->lastItem() }} of {{ $data->total() }} results
                             </div>
                             <div class="flex justify-center">
-                                {{ $data->appends(request()->query())->links('pagination::tailwind') }}
+                                    {{ $data->appends(request()->query())->links('pagination::simple-tailwind') }}
                             </div>
                         </div>
                     @endif
